@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "BrowserQuest NPC Data",
+    "type": "object",
+    "required": ["version", "npcs"],
+    "properties": {
+        "_comment": { "type": "string" },
+        "$schema": { "type": "string" },
+        "version": { "type": "integer", "minimum": 1 },
+        "npcs": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/npc" }
+        }
+    },
+    "definitions": {
+        "event": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+                "type": { "type": "string", "description": "Event kind, e.g. 'shop'." },
+                "items": {
+                    "type": "array",
+                    "description": "For type 'shop': items sold by this NPC.",
+                    "items": {
+                        "type": "object",
+                        "required": ["kind", "price"],
+                        "properties": {
+                            "kind": {
+                                "description": "Item kind name (string) or id (number).",
+                                "oneOf": [
+                                    { "type": "string" },
+                                    { "type": "integer", "minimum": 1 }
+                                ]
+                            },
+                            "price": { "type": "integer", "minimum": 0 }
+                        },
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "additionalProperties": true
+        },
+        "npc": {
+            "type": "object",
+            "required": ["id", "name", "kind", "x", "y", "conversations", "events"],
+            "properties": {
+                "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+                "name": { "type": "string" },
+                "kind": {
+                    "type": "string",
+                    "description": "Sprite/entity kind, e.g. guard, king, villager."
+                },
+                "x": { "type": "integer", "minimum": 0 },
+                "y": { "type": "integer", "minimum": 0 },
+                "idleSpeed": { "type": "integer", "minimum": 1 },
+                "conversations": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                },
+                "events": {
+                    "type": "array",
+                    "items": { "$ref": "#/definitions/event" }
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}

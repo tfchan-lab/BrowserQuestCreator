@@ -1,0 +1,47 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "BrowserQuest Equipment Data",
+    "type": "object",
+    "required": ["version", "types"],
+    "properties": {
+        "_comment": { "type": "string" },
+        "version": { "type": "integer", "minimum": 1 },
+        "types": {
+            "type": "object",
+            "description": "Equipment categories. Each key 'foo' corresponds to an item array named 'foos'.",
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "stat": { "type": "string" },
+                    "maxHpFromLevel": { "type": "boolean" }
+                }
+            }
+        }
+    },
+    "patternProperties": {
+        "^[a-z][a-z0-9]*s$": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/item" }
+        }
+    },
+    "definitions": {
+        "item": {
+            "type": "object",
+            "required": ["id", "name", "rank"],
+            "properties": {
+                "id": { "type": "integer", "minimum": 1 },
+                "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+                "type": { "type": "string" },
+                "subtype": { "type": "string" },
+                "rank": { "type": "integer", "minimum": 1 },
+                "level": { "type": "integer", "minimum": 1 },
+                "maxHp": { "type": "integer", "minimum": 1 },
+                "sprite": { "type": "string" },
+                "itemSprite": { "type": "string" },
+                "lootMessage": { "type": "string" },
+                "sellPrice": { "type": "integer", "minimum": 0 }
+            },
+            "additionalProperties": false
+        }
+    }
+}

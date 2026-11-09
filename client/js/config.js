@@ -1,0 +1,28 @@
+
+define(function() {
+    var config = {
+        dev: { host: "localhost", port: 8000, dispatcher: false },
+        build: { host: "localhost", port: 8000 }
+    };
+    
+    // config_build.json is only needed for the production build; load it if present.
+    require(['text!../config/config_build.json'], function(build) {
+        try {
+            config.build = JSON.parse(build);
+        } catch(e) {
+            // Exception triggered when config_build.json does not exist. Nothing to do here.
+        }
+    });
+    
+    //>>excludeStart("prodHost", pragmas.prodHost);
+    require(['text!../config/config_local.json'], function(local) {
+        try {
+            config.local = JSON.parse(local);
+        } catch(e) {
+            // Exception triggered when config_local.json does not exist. Nothing to do here.
+        }
+    });
+    //>>excludeEnd("prodHost");
+    
+    return config;
+});

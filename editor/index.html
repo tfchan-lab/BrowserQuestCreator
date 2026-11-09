@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>BrowserQuest Map Editor</title>
+    <link rel="stylesheet" href="/editor/css/editor.css">
+</head>
+<body>
+    <div id="toolbar">
+        <strong>BQ Map Editor</strong>
+        <span class="sep"></span>
+
+        <label>Tool:
+            <select id="tool">
+                <option value="paint">Paint tile</option>
+                <option value="erase">Erase tile (layer)</option>
+                <option value="collision">Toggle collision</option>
+                <option value="blocking">Toggle blocking</option>
+                <option value="plateau">Toggle plateau</option>
+                <optgroup label="Regions (drag a rectangle)">
+                    <option value="musicArea">Music / cave area</option>
+                    <option value="checkpoint">Checkpoint</option>
+                    <option value="roamingArea">Roaming mob area</option>
+                    <option value="chestArea">Chest area</option>
+                </optgroup>
+                <optgroup label="Points (click)">
+                    <option value="door">Door / portal</option>
+                    <option value="staticChest">Static chest</option>
+                    <option value="staticEntity">Static mob/item</option>
+                    <option value="npc">NPC</option>
+                </optgroup>
+                <option value="select">Select / move</option>
+            </select>
+        </label>
+
+        <label>Layer:
+            <select id="layer">
+                <option value="0">Base (0)</option>
+                <option value="1">Decor 1</option>
+                <option value="2">Decor 2</option>
+            </select>
+        </label>
+
+        <span class="sep"></span>
+        <button id="save-btn" type="button">Save</button>
+        <button id="apply-npcs-btn" type="button" title="Write shared/data/npcs.json">Apply NPCs</button>
+        <button id="import-btn" type="button" title="Import a sprite (PNG scales + JSON)">Import sprite…</button>
+        <span class="sep"></span>
+        <span id="status"></span>
+        <span id="info">x: -, y: - &nbsp; tile: -</span>
+    </div>
+
+    <div id="main">
+        <div id="palette-wrap">
+            <div id="palette-tabs">
+                <button type="button" class="ptab active" data-tab="tiles">Tiles</button>
+                <button type="button" class="ptab" data-tab="sprites">Sprites</button>
+            </div>
+            <div id="tab-tiles" class="palette-tab-panel active">
+                <input id="tile-filter" type="text" placeholder="Filter by id (120, 100-150) or name">
+                <label class="chk"><input id="tile-used-only" type="checkbox"> Only tiles used in map</label>
+                <canvas id="palette"></canvas>
+            </div>
+            <div id="tab-sprites" class="palette-tab-panel">
+                <input id="sprite-filter" type="text" placeholder="Filter by sprite name">
+                <div id="sprite-palette"></div>
+            </div>
+        </div>
+        <div id="canvas-wrap">
+            <canvas id="map"></canvas>
+        </div>
+        <div id="inspector">
+            <div id="inspector-title">Inspector</div>
+            <div id="inspector-body">Select a tool to edit its properties.</div>
+        </div>
+    </div>
+
+    <div id="import-dialog" class="dialog" style="display:none">
+        <div class="dialog-inner">
+            <h3>Import sprite</h3>
+            <div class="row">
+                <label>Sprite id (letters/digits/-/_):<input id="imp-id" type="text" placeholder="mysprite"></label>
+            </div>
+            <div class="row">
+                <label>Frame width<input id="imp-w" type="number" value="16" min="1"></label>
+                <label>Frame height<input id="imp-h" type="number" value="16" min="1"></label>
+            </div>
+            <div class="row">
+                <label>Idle frame length<input id="imp-len" type="number" value="1" min="1"></label>
+                <label>Idle row<input id="imp-row" type="number" value="0" min="0"></label>
+            </div>
+            <fieldset class="row">
+                <legend>PNG scales (provide any; missing scales are auto-generated from the nearest)</legend>
+                <label>Scale 1<input id="imp-png1" type="file" accept="image/png"></label>
+                <label>Scale 2<input id="imp-png2" type="file" accept="image/png"></label>
+                <label>Scale 3<input id="imp-png3" type="file" accept="image/png"></label>
+            </fieldset>
+            <div class="row">
+                <label class="chk"><input id="imp-terrain" type="checkbox"> This is a terrain tile (show in tile palette notes)</label>
+            </div>
+            <div class="row">
+                <label class="chk"><input id="imp-advanced" type="checkbox"> Edit raw JSON / include advanced animations</label>
+            </div>
+            <div class="row" id="imp-json-row" style="display:none">
+                <label>Sprite JSON<textarea id="imp-json" rows="8" style="width:100%"></textarea></label>
+            </div>
+            <div class="dialog-actions">
+                <button id="imp-do" type="button">Import</button>
+                <button id="imp-cancel" type="button">Cancel</button>
+            </div>
+            <div id="import-status"></div>
+            <div class="hint">Tip: provide at least one scale PNG. Missing scales are generated by down/upscaling the closest provided one (scale 2 is best).</div>
+        </div>
+    </div>
+
+    <script src="/shared/js/gametypes.js"></script>
+    <script src="/editor/js/editor.js"></script>
+</body>
+</html>
