@@ -23,35 +23,9 @@ define(['character', 'exceptions'], function(Character, Exceptions) {
     
         loot: function(item) {
             if(item) {
-                var rank, currentRank, currentArmorName;
-            
-                if(this.currentArmorSprite) {
-                    currentArmorName = this.currentArmorSprite.name;
-                } else {
-                    currentArmorName = this.spriteName;
-                }
-
-                if(item.type === "armor") {
-                    rank = Types.getArmorRank(item.kind);
-                    currentRank = Types.getArmorRank(Types.getKindFromString(currentArmorName));
-                } else if(item.type === "weapon") {
-                    rank = Types.getWeaponRank(item.kind);
-                    currentRank = Types.getWeaponRank(Types.getKindFromString(this.weaponName));
-                }
-
-                if(rank && currentRank) {
-                    if(rank === currentRank) {
-                        // Already owned; still pick it up so the inventory stays authoritative.
-                        log.info('Picked up duplicate '+item.type);
-                    } else if(rank <= currentRank) {
-                        log.info('Picked up weaker '+item.type+' (added to inventory)');
-                    }
-                }
-            
+                // No tier comparison / auto-equip: the server adds looted gear to
+                // the inventory; equipping is always an explicit player action.
                 log.info('Player '+this.id+' has looted '+item.id);
-                if(Types.isArmor(item.kind) && this.invincible) {
-                    this.stopInvincibility();
-                }
                 item.onLoot(this);
             }
         },
@@ -97,33 +71,29 @@ define(['character', 'exceptions'], function(Character, Exceptions) {
         },
     
         switchWeapon: function(newWeaponName) {
-            var count = 14, 
-                value = false, 
-                self = this;
-        
-            var toggle = function() {
-                value = !value;
-                return value;
-            };
-        
+            var self = this;
+
             if(newWeaponName !== this.getWeaponName()) {
-                if(this.isSwitchingWeapon) {
-                    clearInterval(blanking);
+                // Cancel any in-flight weapon switch (stored on the instance so it
+                // can actually be cleared; a local var could never cancel a prior
+                // interval).
+                if(this._switchWeaponInterval) {
+                    clearInterval(this._switchWeaponInterval);
+                    this._switchWeaponInterval = null;
                 }
-            
-                this.switchingWeapon = true;
-                var blanking = setInterval(function() {
-                    if(toggle()) {
-                        self.setWeaponName(newWeaponName);
-                    } else {
-                        self.setWeaponName(null);
-                    }
+
+                var count = 14,
+                    value = false;
+
+                this._switchWeaponInterval = setInterval(function() {
+                    value = !value;
+                    self.setWeaponName(value ? newWeaponName : null);
 
                     count -= 1;
                     if(count === 1) {
-                        clearInterval(blanking);
-                        self.switchingWeapon = false;
-                    
+                        clearInterval(self._switchWeaponInterval);
+                        self._switchWeaponInterval = null;
+                        self.setWeaponName(newWeaponName); // ensure final state
                         if(self.switch_callback) {
                             self.switch_callback();
                         }
@@ -131,23 +101,16 @@ define(['character', 'exceptions'], function(Character, Exceptions) {
                 }, 90);
             }
         },
-    
+
         switchArmor: function(newArmorSprite) {
-            var count = 14, 
-                value = false, 
-                self = this;
-        
-            var toggle = function() {
-                value = !value;
-                return value;
-            };
-        
+            var self = this;
+
             if(newArmorSprite && newArmorSprite.id !== this.getSpriteName()) {
-                if(this.isSwitchingArmor) {
-                    clearInterval(blanking);
+                if(this._switchArmorInterval) {
+                    clearInterval(this._switchArmorInterval);
+                    this._switchArmorInterval = null;
                 }
-            
-                this.isSwitchingArmor = true;
+
                 self.setSprite(newArmorSprite);
                 self.setSpriteName(newArmorSprite.id);
                 // setSprite rebuilds the animation set, but setAnimation() returns
@@ -156,14 +119,20 @@ define(['character', 'exceptions'], function(Character, Exceptions) {
                 // be re-derived from the new sprite.
                 self.currentAnimation = null;
                 self.idle();
-                var blanking = setInterval(function() {
-                    self.setVisible(toggle());
+                self.setVisible(true);
+
+                var count = 14,
+                    value = false;
+
+                this._switchArmorInterval = setInterval(function() {
+                    value = !value;
+                    self.setVisible(value);
 
                     count -= 1;
                     if(count === 1) {
-                        clearInterval(blanking);
-                        self.isSwitchingArmor = false;
-                    
+                        clearInterval(self._switchArmorInterval);
+                        self._switchArmorInterval = null;
+                        self.setVisible(true); // never leave the player invisible
                         if(self.switch_callback) {
                             self.switch_callback();
                         }

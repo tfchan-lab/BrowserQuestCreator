@@ -538,7 +538,7 @@ define(['jquery', 'storage', '../../shared/js/equipment'], function($, Storage, 
             if((Types.isArmor(kind) || Types.isWeapon(kind)) && Equipment.getSellPrice) {
                 return Equipment.getSellPrice(kind);
             }
-            var fallback = { flask: 3, burger: 5, cake: 8, firepotion: 10, teleportscroll: 15 };
+            var fallback = { flask: 3, burger: 5, cake: 8, firepotion: 10, teleportscroll: 15, volcanoscroll: 15 };
             var name = Types.getKindAsString(kind);
             return fallback[name] || 1;
         },

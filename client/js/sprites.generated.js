@@ -42,6 +42,7 @@ define([
         'text!../sprites/item-sword1.json',
         'text!../sprites/item-sword2.json',
         'text!../sprites/item-teleportscroll.json',
+        'text!../sprites/item-volcanoscroll.json',
         'text!../sprites/king.json',
         'text!../sprites/lavanpc.json',
         'text!../sprites/leatherarmor.json',

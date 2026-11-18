@@ -22,7 +22,9 @@ var BQ_EQUIPMENT_DATA = {
             "level": 1,
             "sprite": "sword1",
             "itemSprite": "item-sword1",
-            "lootMessage": "You pick up a dagger"
+            "lootMessage": "You pick up a dagger",
+            "attackRange": 1.5,
+            "attackInterval": 800
         },
         {
             "id": 61,
@@ -33,7 +35,9 @@ var BQ_EQUIPMENT_DATA = {
             "level": 2,
             "sprite": "sword2",
             "itemSprite": "item-sword2",
-            "lootMessage": "You pick up a steel sword"
+            "lootMessage": "You pick up a steel sword",
+            "attackRange": 1.5,
+            "attackInterval": 800
         },
         {
             "id": 65,
@@ -44,7 +48,9 @@ var BQ_EQUIPMENT_DATA = {
             "level": 3,
             "sprite": "axe",
             "itemSprite": "item-axe",
-            "lootMessage": "You pick up an steel axe"
+            "lootMessage": "You pick up an steel axe",
+            "attackRange": 2,
+            "attackInterval": 1100
         },
         {
             "id": 64,
@@ -55,7 +61,9 @@ var BQ_EQUIPMENT_DATA = {
             "level": 4,
             "sprite": "morningstar",
             "itemSprite": "item-morningstar",
-            "lootMessage": "You pick up a morning star"
+            "lootMessage": "You pick up a morning star",
+            "attackRange": 1,
+            "attackInterval": 600
         },
         {
             "id": 66,
@@ -66,7 +74,9 @@ var BQ_EQUIPMENT_DATA = {
             "level": 5,
             "sprite": "bluesword",
             "itemSprite": "item-bluesword",
-            "lootMessage": "You pick up a magic sword"
+            "lootMessage": "You pick up a magic sword",
+            "attackRange": 1.5,
+            "attackInterval": 800
         },
         {
             "id": 62,
@@ -77,7 +87,9 @@ var BQ_EQUIPMENT_DATA = {
             "level": 6,
             "sprite": "redsword",
             "itemSprite": "item-redsword",
-            "lootMessage": "You pick up a magma sword"
+            "lootMessage": "You pick up a magma sword",
+            "attackRange": 1.5,
+            "attackInterval": 800
         },
         {
             "id": 63,
@@ -88,7 +100,9 @@ var BQ_EQUIPMENT_DATA = {
             "level": 7,
             "sprite": "goldensword",
             "itemSprite": "item-goldensword",
-            "lootMessage": "You pick up a noble sword"
+            "lootMessage": "You pick up a noble sword",
+            "attackRange": 1.5,
+            "attackInterval": 800
         }
     ],
     "armors": [

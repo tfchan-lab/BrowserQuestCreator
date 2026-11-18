@@ -8,6 +8,7 @@
     , "equipment:build": "node tools/equipment/build.js"
     , "npcs:build": "node tools/npcs/build.js"
     , "prestart": "node tools/equipment/build.js && node tools/npcs/build.js"
+    , "test": "node --test test/*.test.js && node regen-suite.js"
   }
   , "dependencies": {
     "underscore": "1.8.3"

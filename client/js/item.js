@@ -14,32 +14,13 @@ define(['entity', '../../shared/js/equipment'], function(Entity, Equipment) {
             return true;
         },
 
-        isBetterThanEquipped: function(player) {
-            var rank = Equipment.getRank(this.kind);
-
-            if(this.type === "weapon") {
-                var current = Types.getKindFromString(player.getWeaponName());
-                return current === undefined || rank > Equipment.getRank(current);
-            } else if(this.type === "armor") {
-                var currentArmor = Types.getKindFromString(player.getArmorName());
-                return currentArmor === undefined || rank > Equipment.getRank(currentArmor);
-            }
-            return false;
-        },
-
+        /**
+         * Called when the player picks the item up. The base implementation does
+         * nothing: equipment is never auto-equipped based on tier. Only actual
+         * equip actions (inventory click -> server EQUIP) change gear. Consumable
+         * subclasses (e.g. FirePotion) override this.
+         */
         onLoot: function(player) {
-            // Optimistically apply only the auto-equip the server will perform
-            // (items strictly better than what is currently equipped).
-            if(!this.isBetterThanEquipped(player)) {
-                return;
-            }
-
-            if(this.type === "weapon") {
-                player.switchWeapon(this.itemKind);
-            }
-            else if(this.type === "armor") {
-                player.armorloot_callback(this.itemKind);
-            }
         },
 
         getSpriteName: function() {

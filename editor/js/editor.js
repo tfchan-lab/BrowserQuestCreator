@@ -830,6 +830,167 @@
         });
     }
 
+    // --- NPC events editor (shop, etc.) ------------------------------------
+    /**
+     * Candidate item kinds for shop entries: every storable inventory kind
+     * (consumables, scrolls, and gear). Cached. Each entry has the kind `name`
+     * (what gets stored in npcs.json) plus a friendlier `label`.
+     */
+    function itemKindCandidates() {
+        if(state._itemKinds) { return state._itemKinds; }
+        var out = [];
+        Types.forEachKind(function(kind, name) {
+            if(!Types.isStorableInventoryKind(kind)) { return; }
+            var label = (Types.getItemDisplayName && Types.getItemDisplayName(kind)) || name;
+            out.push({ name: name, label: label, hay: (name + ' ' + label).toLowerCase() });
+        });
+        out.sort(function(a, b) { return a.name.localeCompare(b.name); });
+        state._itemKinds = out;
+        return out;
+    }
+
+    /**
+     * Fuzzy score of `query` against `hay` (both lowercase). Higher is better;
+     * -1 means no match. Exact/prefix > substring > subsequence.
+     */
+    function fuzzyScore(query, hay) {
+        if(!query) { return 0; }
+        var idx = hay.indexOf(query);
+        if(idx === 0) { return 100; }
+        if(idx > 0) { return 60 - Math.min(idx, 50); }
+        var qi = 0;
+        for(var i = 0; i < hay.length && qi < query.length; i++) {
+            if(hay.charAt(i) === query.charAt(qi)) { qi++; }
+        }
+        return (qi === query.length) ? 20 : -1;
+    }
+
+    function eventsEditorHtml(npc) {
+        var events = npc.events || (npc.events = []);
+        var html = '<div class="npc-events"><div class="section-title">Events</div>';
+
+        if(events.length === 0) {
+            html += '<div class="hint">No events.</div>';
+        }
+
+        events.forEach(function(ev, ei) {
+            if(ev.type === 'shop') {
+                var items = ev.items || (ev.items = []);
+                html += '<div class="event-block" data-ei="'+ei+'">' +
+                    '<div class="event-head">Shop</div><div class="event-items">';
+                items.forEach(function(it, ii) {
+                    html += '<div class="event-item" data-ei="'+ei+'" data-ii="'+ii+'">' +
+                        '<div class="ev-kind-combo">' +
+                            '<input class="ev-kind" data-ei="'+ei+'" data-ii="'+ii+'" type="text" autocomplete="off" placeholder="item kind (e.g. volcanoscroll)" value="'+escapeAttr(it.kind)+'">' +
+                            '<div class="ev-kind-menu" style="display:none"></div>' +
+                        '</div>' +
+                        '<input class="ev-price" data-ei="'+ei+'" data-ii="'+ii+'" type="number" min="0" value="'+escapeAttr(it.price)+'">' +
+                        '<button class="ev-del-item" data-ei="'+ei+'" data-ii="'+ii+'" type="button" title="Remove item">x</button>' +
+                        '</div>';
+                });
+                html += '</div>' +
+                    '<button class="ev-add-item" data-ei="'+ei+'" type="button">+ item</button>' +
+                    '<button class="ev-del" data-ei="'+ei+'" type="button">Delete event</button>' +
+                    '</div>';
+            } else {
+                html += '<div class="event-block" data-ei="'+ei+'">' +
+                    '<div class="event-head">' + escapeHtml(ev.type) + ' (unsupported)</div>' +
+                    '<button class="ev-del" data-ei="'+ei+'" type="button">Delete event</button>' +
+                    '</div>';
+            }
+        });
+
+        html += '<button id="npc-add-event" type="button">+ Add shop event</button></div>';
+        return html;
+    }
+
+    function bindEventsEditor(npc) {
+        var events = npc.events || (npc.events = []);
+
+        var addEventBtn = $('npc-add-event');
+        if(addEventBtn) {
+            addEventBtn.addEventListener('click', function() {
+                events.push({ type: 'shop', items: [] });
+                markNpcsDirty(); buildInspector();
+            });
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll('#inspector-body .ev-add-item'), function(btn) {
+            btn.addEventListener('click', function() {
+                var ev = events[parseInt(btn.getAttribute('data-ei'), 10)];
+                if(ev) { ev.items = ev.items || []; ev.items.push({ kind: '', price: 0 }); markNpcsDirty(); buildInspector(); }
+            });
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('#inspector-body .ev-del'), function(btn) {
+            btn.addEventListener('click', function() {
+                events.splice(parseInt(btn.getAttribute('data-ei'), 10), 1);
+                markNpcsDirty(); buildInspector();
+            });
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('#inspector-body .ev-del-item'), function(btn) {
+            btn.addEventListener('click', function() {
+                var ev = events[parseInt(btn.getAttribute('data-ei'), 10)];
+                if(ev && ev.items) { ev.items.splice(parseInt(btn.getAttribute('data-ii'), 10), 1); markNpcsDirty(); buildInspector(); }
+            });
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('#inspector-body .ev-kind'), function(inp) {
+            var combo = inp.parentNode,
+                menu = combo.querySelector('.ev-kind-menu'),
+                ev = events[parseInt(inp.getAttribute('data-ei'), 10)],
+                it = ev && ev.items[parseInt(inp.getAttribute('data-ii'), 10)];
+
+            var commit = function(v) { if(it) { it.kind = v; markNpcsDirty(); } };
+
+            var renderMenu = function() {
+                var q = inp.value.trim().toLowerCase(),
+                    cands = itemKindCandidates().map(function(c) {
+                        return { c: c, s: fuzzyScore(q, c.hay) };
+                    }).filter(function(x) { return x.s >= 0; })
+                      .sort(function(a, b) { return b.s - a.s; })
+                      .slice(0, 8);
+
+                if(cands.length === 0) { menu.style.display = 'none'; return; }
+                menu.innerHTML = cands.map(function(x) {
+                    return '<div class="ev-kind-opt" data-name="' + escapeAttr(x.c.name) + '">' +
+                        escapeHtml(x.c.label) +
+                        '<span class="ev-kind-raw">' + escapeHtml(x.c.name) + '</span></div>';
+                }).join('');
+                menu.style.display = 'block';
+                Array.prototype.forEach.call(menu.querySelectorAll('.ev-kind-opt'), function(opt) {
+                    // mousedown (not click) so the input's blur doesn't close the
+                    // menu before the selection registers.
+                    opt.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        var name = opt.getAttribute('data-name');
+                        inp.value = name;
+                        commit(name);
+                        menu.style.display = 'none';
+                    });
+                });
+            };
+
+            inp.addEventListener('input', function() {
+                commit(inp.value.trim());
+                renderMenu();
+            });
+            inp.addEventListener('focus', renderMenu);
+            inp.addEventListener('blur', function() {
+                setTimeout(function() { menu.style.display = 'none'; }, 150);
+            });
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('#inspector-body .ev-price'), function(inp) {
+            inp.addEventListener('input', function() {
+                var ev = events[parseInt(inp.getAttribute('data-ei'), 10)],
+                    it = ev && ev.items[parseInt(inp.getAttribute('data-ii'), 10)];
+                if(it) { it.price = parseInt(inp.value, 10) || 0; markNpcsDirty(); }
+            });
+        });
+    }
+
     function renderSelectionInspector() {
         var s = state.selected;
         var body = $('inspector-body');
@@ -843,6 +1004,7 @@
                 textField('X', 'sel-x', n.x) +
                 textField('Y', 'sel-y', n.y) +
                 textField('Conversations (one per line)', 'sel-conv', (n.conversations||[]).join('\n')) +
+                eventsEditorHtml(n) +
                 '<button id="sel-del" class="danger" type="button">Delete NPC</button>' +
                 '<div class="hint">Changes are written when you press "Apply NPCs".</div>';
             bindInput('sel-name', function(v){ n.name = v; markNpcsDirty(); refreshNpcListPositions(); });
@@ -850,6 +1012,7 @@
             bindNumberInput('sel-x', function(v){ n.x = v; s.x = v; markNpcsDirty(); renderMap(); refreshNpcListPositions(); });
             bindNumberInput('sel-y', function(v){ n.y = v; s.y = v; markNpcsDirty(); renderMap(); refreshNpcListPositions(); });
             bindInputTextarea('sel-conv', function(v){ n.conversations = v.split('\n'); markNpcsDirty(); });
+            bindEventsEditor(n);
             $('sel-del').addEventListener('click', function() {
                 var idx = state.npcs.npcs.indexOf(n);
                 if(idx >= 0) { state.npcs.npcs.splice(idx, 1); }
@@ -1013,7 +1176,7 @@
           .then(function(res){
               if(res.status === 200 && res.body.ok) {
                   state.dirty.npcs = false;
-                  setStatus('NPCs applied: ' + res.body.written.join(', ') + ' (run `npm run npcs:build` or restart to regenerate client data)');
+                  setStatus('NPCs applied: ' + res.body.written.join(', ') + ' (+ shared/js/npcs-data.js). Reload the game client; restart the server for shop changes.');
               } else { setStatus('Apply NPCs failed: ' + JSON.stringify(res.body)); }
           }).catch(function(e){ setStatus('Apply NPCs error: ' + e.message); });
     }

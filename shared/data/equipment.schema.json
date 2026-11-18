@@ -39,7 +39,9 @@
                 "sprite": { "type": "string" },
                 "itemSprite": { "type": "string" },
                 "lootMessage": { "type": "string" },
-                "sellPrice": { "type": "integer", "minimum": 0 }
+                "sellPrice": { "type": "integer", "minimum": 0 },
+                "attackRange": { "type": "number", "minimum": 0 },
+                "attackInterval": { "type": "integer", "minimum": 0 }
             },
             "additionalProperties": false
         }

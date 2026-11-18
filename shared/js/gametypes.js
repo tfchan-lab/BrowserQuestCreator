@@ -37,7 +37,8 @@ Types = {
         BUY_ITEM: 33,
         SELL_ITEM: 34,
         USE_ITEM: 35,
-        WARP: 36
+        WARP: 36,
+        NOTIFY: 37
     },
     
     Entities: {
@@ -74,6 +75,7 @@ Types = {
         FIREPOTION: 38,
         CAKE: 39,
         TELEPORTSCROLL: 56,
+        VOLCANOSCROLL: 57,
         
         // NPCs
         GUARD: 40,
@@ -150,6 +152,7 @@ var kinds = {
     chest: [Types.Entities.CHEST, "object"],
     firepotion: [Types.Entities.FIREPOTION, "object"],
     teleportscroll: [Types.Entities.TELEPORTSCROLL, "object"],
+    volcanoscroll: [Types.Entities.VOLCANOSCROLL, "object"],
 
     guard: [Types.Entities.GUARD, "npc"],
     villagegirl: [Types.Entities.VILLAGEGIRL, "npc"],
@@ -321,7 +324,8 @@ Types.isExpendableItem = function(kind) {
  * teleport scroll (single-use warp).
  */
 Types.isUsableItem = function(kind) {
-    return kind === Types.Entities.TELEPORTSCROLL;
+    return kind === Types.Entities.TELEPORTSCROLL
+        || kind === Types.Entities.VOLCANOSCROLL;
 };
 
 /**
@@ -329,7 +333,8 @@ Types.isUsableItem = function(kind) {
  * unit and moves the player to these grid coordinates.
  */
 Types.warpDestinations = {
-    56: { x: 16, y: 223 }   // teleportscroll -> Initial Town (next to Village Girl)
+    56: { x: 16, y: 223 },  // teleportscroll -> Initial Town (next to Village Girl)
+    57: { x: 48, y: 59 }    // volcanoscroll -> Volcano Entrance (near Desert Nomad)
 };
 
 /**
@@ -337,11 +342,36 @@ Types.warpDestinations = {
  * player-friendly. Equipment display names come from the equipment data.
  */
 Types.itemDisplayNames = {
-    56: '[\u2605 Initial Town]'   // teleportscroll
+    56: '[\u2605 Initial Town]',   // teleportscroll
+    57: '[\u2605 Volcano Entrance]' // volcanoscroll
 };
 
 Types.getItemDisplayName = function(kind) {
     return Types.itemDisplayNames[kind] || null;
+};
+
+/**
+ * Per-mob-kind combat stats. Mobs are melee by default (range 1). Attack
+ * interval defaults to 800ms unless a kind overrides it here (the client mob
+ * classes also set their own attack rate; this table is the shared source for
+ * range and a fallback interval). Keys are kind names, e.g. "rat".
+ */
+Types.mobAttackRange = {};      // e.g. { rat: 1 }
+Types.mobAttackInterval = {};   // e.g. { rat: 800 }
+
+Types.DEFAULT_MOB_ATTACK_RANGE = 1;
+Types.DEFAULT_MOB_ATTACK_INTERVAL = 800;
+
+Types.getMobAttackRange = function(kind) {
+    var name = Types.getKindAsString(kind);
+    var r = name && Types.mobAttackRange[name];
+    return (typeof r === 'number') ? r : Types.DEFAULT_MOB_ATTACK_RANGE;
+};
+
+Types.getMobAttackInterval = function(kind) {
+    var name = Types.getKindAsString(kind);
+    var i = name && Types.mobAttackInterval[name];
+    return (typeof i === 'number') ? i : Types.DEFAULT_MOB_ATTACK_INTERVAL;
 };
 
 Types.getKindFromString = function(kind) {

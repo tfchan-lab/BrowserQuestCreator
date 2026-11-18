@@ -69,7 +69,9 @@
                     sprite: entry.sprite || entry.name,
                     itemSprite: entry.itemSprite || ('item-' + entry.name),
                     lootMessage: entry.lootMessage || ('You pick up a ' + entry.name),
-                    sellPrice: (typeof entry.sellPrice === 'number') ? entry.sellPrice : undefined
+                    sellPrice: (typeof entry.sellPrice === 'number') ? entry.sellPrice : undefined,
+                    attackRange: (typeof entry.attackRange === 'number') ? entry.attackRange : undefined,
+                    attackInterval: (typeof entry.attackInterval === 'number') ? entry.attackInterval : undefined
                 };
                 items[item.id] = item;
                 byName[item.name] = item;
@@ -186,6 +188,36 @@
         if(!item) { return 0; }
         if(typeof item.sellPrice === 'number') { return item.sellPrice; }
         return (item.rank || 1) * 5;
+    };
+
+    /**
+     * Default combat stats by weapon subtype. Used when a weapon omits
+     * `attackRange` / `attackInterval`.
+     *   - hammer/club is the range baseline (1 tile) and faster interval
+     *   - sword is the interval baseline (2-tile range)
+     *   - axe has the longest range (3 tiles) and slowest interval
+     */
+    Equipment.SUBTYPE_COMBAT = {
+        sword: { range: 1.5, interval: 800 },   // orthogonal + diagonal adjacent
+        club:  { range: 1, interval: 600 },     // hammer / morning star (orthogonal only)
+        axe:   { range: 2, interval: 1100 }     // kiting range (Euclidean 2)
+    };
+    Equipment.DEFAULT_COMBAT = { range: 1, interval: 800 };
+
+    Equipment.getAttackRange = function(kind) {
+        var item = Equipment.getItem(kind);
+        if(!item) { return Equipment.DEFAULT_COMBAT.range; }
+        if(typeof item.attackRange === 'number') { return item.attackRange; }
+        var sub = Equipment.SUBTYPE_COMBAT[item.subtype];
+        return sub ? sub.range : Equipment.DEFAULT_COMBAT.range;
+    };
+
+    Equipment.getAttackInterval = function(kind) {
+        var item = Equipment.getItem(kind);
+        if(!item) { return Equipment.DEFAULT_COMBAT.interval; }
+        if(typeof item.attackInterval === 'number') { return item.attackInterval; }
+        var sub = Equipment.SUBTYPE_COMBAT[item.subtype];
+        return sub ? sub.interval : Equipment.DEFAULT_COMBAT.interval;
     };
 
     var root = (typeof window !== 'undefined') ? window : (typeof global !== 'undefined' ? global : this);

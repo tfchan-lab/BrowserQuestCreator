@@ -18,6 +18,19 @@ var isArmorOrWeaponKind = function(kind) {
     return Types.isArmor(kind) || Types.isWeapon(kind);
 };
 
+// Anti-cheat tolerances for combat validation (see HIT/HURT handlers).
+//   - RANGE: extra tiles allowed on top of the weapon/mob attack range to absorb
+//     client/server position desync (the server does not track positions during
+//     an attack-approach).
+//   - INTERVAL: milliseconds of slack so network jitter doesn't reject legit hits.
+var COMBAT_RANGE_TOLERANCE = 0.75;
+var COMBAT_INTERVAL_SLACK = 120;
+
+function euclidean(ax, ay, bx, by) {
+    var dx = ax - bx, dy = ay - by;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
 module.exports = Player = Character.extend({
     init: function(connection, worldServer) {
         var self = this;
@@ -41,6 +54,11 @@ module.exports = Player = Character.extend({
         this.inventoryCounts = {};
         this.gold = 0;
         this.lastMoveTime = Date.now();
+
+        // Combat (set from the equipped weapon via equipWeapon()).
+        this.attackRange = 1;
+        this.attackInterval = 800;
+        this.lastHitTime = 0;
 
         // Progression (experience / level / stats)
         this.totalXp = 0;
@@ -153,8 +171,42 @@ module.exports = Player = Character.extend({
                 }
             }
             else if(action === Types.Messages.HIT) {
+                // [HIT, mobId, playerX, playerY]
                 var mob = self.server.getEntityById(message[1]);
                 if(mob) {
+                    var now = Date.now();
+
+                    // Anti-spam: enforce the weapon's attack interval server-side.
+                    var interval = self.attackInterval || 800;
+                    if(now - (self.lastHitTime || 0) < interval - COMBAT_INTERVAL_SLACK) {
+                        return;
+                    }
+
+                    // Range guard (lenient): reported player position vs mob.
+                    // Skip it when the mob is already targeting this player: an
+                    // aggressive mob can aggro (and be repositioned server-side)
+                    // before the player attacks, so its server position is
+                    // unreliable, and an engaged mob is by definition chasing the
+                    // player. The attack-interval guard still applies either way.
+                    var px = message[2], py = message[3];
+                    if(mob.target !== self.id) {
+                        if(typeof px === 'number' && typeof py === 'number') {
+                            var dist = euclidean(px, py, mob.x, mob.y);
+                            if(dist > (self.attackRange || 1) + COMBAT_RANGE_TOLERANCE) {
+                                return;
+                            }
+                        }
+                    }
+
+                    if(typeof px === 'number' && typeof py === 'number') {
+                        // Adopt the reported position so that, when this hit aggros
+                        // the mob (handleMobHate -> onEntityAttack repositions the
+                        // mob next to the player), it is placed next to the actual
+                        // player rather than a stale position.
+                        self.setPosition(px, py);
+                    }
+
+                    self.lastHitTime = now;
                     var dmg = Formulas.dmg(self.attackPower(), mob.armorLevel);
                     
                     if(dmg > 0) {
@@ -398,6 +450,8 @@ module.exports = Player = Character.extend({
     equipWeapon: function(kind) {
         this.weapon = kind;
         this.weaponLevel = Properties.getWeaponLevel(kind);
+        this.attackRange = Properties.getAttackRange(kind);
+        this.attackInterval = Properties.getAttackInterval(kind);
     },
     
     equipItem: function(item) {
@@ -438,6 +492,13 @@ module.exports = Player = Character.extend({
                 self.inventoryCounts[kind] = (self.inventoryCounts[kind] || 0) + count;
             };
 
+        // The persisted loadout is authoritative: reset the current subsystems
+        // before applying it. Without this, re-sending HELLO on respawn (the same
+        // Player object, isDead) would ADD the persisted inventory on top of what
+        // is already held, duplicating stackable items.
+        this.equipment = [];
+        this.inventoryCounts = {};
+
         var equipmentList = [], inventoryMap = {}, gold = 0;
 
         if(_.isArray(persisted)) {
@@ -474,20 +535,11 @@ module.exports = Player = Character.extend({
             return;
         }
 
+        // No tier-based auto-equipping: looted gear is only *owned*; the player
+        // must equip it manually from the inventory. This removes the original
+        // rank comparison entirely to avoid client/server desync.
         if(this.equipment.indexOf(kind) === -1) {
-            // First copy: own + maybe equip.
             this.equipment.push(kind);
-            if(Types.isArmor(kind)) {
-                if(!this.armor || Types.getArmorRank(kind) > Types.getArmorRank(this.armor)) {
-                    this.equipItem({ kind: kind });
-                    this.broadcastEquip(kind);
-                }
-            } else if(Types.isWeapon(kind)) {
-                if(!this.weapon || Types.getWeaponRank(kind) > Types.getWeaponRank(this.weapon)) {
-                    this.equipItem({ kind: kind });
-                    this.broadcastEquip(kind);
-                }
-            }
         } else {
             // Duplicate: sellable inventory stack.
             this.inventoryCounts[kind] = (this.inventoryCounts[kind] || 0) + 1;
@@ -593,12 +645,16 @@ module.exports = Player = Character.extend({
 
         _.each(this.server.npcs, function(npc) {
             if(!npc || !npc.npcConfig) { return; }
-            if(!NPCData.getShop(npc.npcConfig)) { return; }
+            // Resolve the *current* config from the registry (the NPC entity's
+            // attached npcConfig is from spawn time and may be stale after the
+            // editor edits NPC data). Fall back to the attached config.
+            var cfg = (npc.npcConfig.id && NPCData.getById(npc.npcConfig.id)) || npc.npcConfig;
+            if(!NPCData.getShop(cfg)) { return; }
             var dx = npc.x - self.x,
                 dy = npc.y - self.y,
                 dist = Math.max(Math.abs(dx), Math.abs(dy));
             if(dist <= radius && dist < bestDist) {
-                best = npc.npcConfig;
+                best = cfg;
                 bestDist = dist;
             }
         });
@@ -705,7 +761,7 @@ module.exports = Player = Character.extend({
         this.server.pushRelevantEntityListTo(this);
 
         this.sendInventory();
-        this.notify("You warped to " + (Types.getItemDisplayName(kind) || Types.getKindAsString(kind)) + ".");
+        this.send(new Messages.Notify("You warped to " + (Types.getItemDisplayName(kind) || Types.getKindAsString(kind)) + ".").serialize());
         log.debug(this.name + " used " + Types.getKindAsString(kind) + " -> " + x + "," + y);
     },
     

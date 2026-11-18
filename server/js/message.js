@@ -160,6 +160,19 @@ Messages.Warp = Message.extend({
     }
 });
 
+/**
+ * Server -> a single player: a short system message to display on the bottom
+ * notification bar (e.g. "You warped to ..."). Layout: [NOTIFY, text]
+ */
+Messages.Notify = Message.extend({
+    init: function(text) {
+        this.text = text;
+    },
+    serialize: function() {
+        return [Types.Messages.NOTIFY, this.text];
+    }
+});
+
 Messages.Damage = Message.extend({
     init: function(entity, points) {
         this.entity = entity;

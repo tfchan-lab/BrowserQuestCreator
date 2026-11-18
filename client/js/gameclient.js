@@ -35,6 +35,7 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
             this.handlers[Types.Messages.MOB_HEALTH] = this.receiveMobHealth;
             this.handlers[Types.Messages.PROGRESSION] = this.receiveProgression;
             this.handlers[Types.Messages.WARP] = this.receiveWarp;
+            this.handlers[Types.Messages.NOTIFY] = this.receiveNotify;
         
             this.useBison = false;
             this.enable();
@@ -101,13 +102,22 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
                     $('#container').addClass('error');
                     
                     if(self.disconnected_callback) {
-                        if(self.isTimeout) {
+                        if(self.closing) {
+                            self.disconnected_callback("You have been disconnected because the browser window was hidden.");
+                        } else if(self.isTimeout) {
                             self.disconnected_callback("You have been disconnected for being inactive for too long");
                         } else {
                             self.disconnected_callback("The connection to BrowserQuest has been lost");
                         }
                     }
                 };
+            }
+        },
+
+        close: function() {
+            this.closing = true;
+            if(this.connection) {
+                try { this.connection.close(); } catch(e) {}
             }
         },
 
@@ -341,6 +351,14 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
                 this.warp_callback(x, y);
             }
         },
+
+        receiveNotify: function(data) {
+            var text = data[1];
+
+            if(this.notify_callback) {
+                this.notify_callback(text);
+            }
+        },
     
         receiveDamage: function(data) {
             var id = data[1],
@@ -503,6 +521,10 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
         onPlayerWarp: function(callback) {
             this.warp_callback = callback;
         },
+
+        onNotify: function(callback) {
+            this.notify_callback = callback;
+        },
     
         onChatMessage: function(callback) {
             this.chat_callback = callback;
@@ -623,9 +645,11 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
                               mob.id]);
         },
     
-        sendHit: function(mob) {
+        sendHit: function(mob, x, y) {
             this.sendMessage([Types.Messages.HIT,
-                              mob.id]);
+                              mob.id,
+                              x,
+                              y]);
         },
     
         sendHurt: function(mob) {

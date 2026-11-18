@@ -71,6 +71,16 @@
         return NPCs.registry;
     };
 
+    /**
+     * Discards the cached registry and re-reads the data source. Used by the
+     * editor backend so NPC changes (e.g. shops) take effect in the running
+     * server without a restart.
+     */
+    NPCs.reload = function(rawData) {
+        NPCs.registry = null;
+        return NPCs.load(rawData);
+    };
+
     // -----------------------------------------------------------------------
     // Lookups
     // -----------------------------------------------------------------------

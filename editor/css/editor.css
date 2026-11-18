@@ -63,6 +63,23 @@ body { display: flex; flex-direction: column; }
 #inspector-body ul.list li { padding: 2px 4px; border-bottom: 1px solid #333; cursor: pointer; }
 #inspector-body ul.list li:hover { background: #333; }
 
+/* NPC events editor */
+.npc-events { margin-top: 12px; border-top: 1px solid #444; padding-top: 8px; }
+.npc-events .section-title { color: #FCE045; font-size: 12px; margin-bottom: 6px; }
+.event-block { border: 1px solid #444; border-radius: 4px; padding: 6px; margin-bottom: 8px; background: #262626; }
+.event-block .event-head { color: #9ad; font-size: 11px; text-transform: uppercase; margin-bottom: 4px; }
+.event-item { display: flex; gap: 4px; align-items: center; margin-bottom: 4px; }
+.ev-kind-combo { flex: 1 1 auto; position: relative; min-width: 0; }
+.ev-kind-combo .ev-kind { width: 100%; }
+.event-item .ev-price { width: 60px; flex: 0 0 60px; }
+.ev-kind-menu { position: absolute; top: 100%; left: 0; right: 0; z-index: 30; max-height: 180px; overflow-y: auto; background: #2b2b2b; border: 1px solid #555; border-radius: 3px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.ev-kind-opt { padding: 3px 6px; cursor: pointer; font-size: 12px; color: #ddd; display: flex; justify-content: space-between; gap: 8px; }
+.ev-kind-opt:hover, .ev-kind-opt.active { background: #3f6f3f; color: #fff; }
+.ev-kind-opt .ev-kind-raw { color: #8a8a8a; font-size: 10px; }
+.event-item .ev-del-item, .event-block .ev-del { background: #7f3f3f; border-color: #5d2d2d; padding: 1px 6px; margin-top: 0; }
+.event-block .ev-add-item, .event-block .ev-del { margin-top: 4px; margin-right: 6px; }
+#npc-add-event { margin-top: 4px; }
+
 .dialog { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 50; }
 .dialog-inner { background: #2b2b2b; border: 1px solid #555; border-radius: 6px; padding: 16px 20px; width: 520px; max-width: 92vw; }
 .dialog-inner h3 { margin: 0 0 8px; color: #FCE045; }

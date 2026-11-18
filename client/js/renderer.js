@@ -472,6 +472,23 @@ function(Camera, Item, Character, Player, Mob, Npc, Timer) {
             // Filled portion
             this.context.fillStyle = '#d83939';
             this.context.fillRect(x, y, Math.round(barWidth * ratio), barHeight);
+
+            // Attack-cooldown bar (white), same length as the HP bar, drawn just
+            // above it. It shrinks as the mob's attack interval elapses. The mob's
+            // attackCooldown.lastTime is advanced by the client-side mob AI when it
+            // attacks (Character.canAttack -> attackCooldown.isOver).
+            var cd = mob.attackCooldown;
+            if(cd && cd.lastTime > 0) {
+                var remain = 1 - ((this.game.currentTime - cd.lastTime) / cd.duration);
+                if(remain > 0) {
+                    if(remain > 1) { remain = 1; }
+                    var cdY = y - barHeight - 1;
+                    this.context.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                    this.context.fillRect(x - 1, cdY - 1, barWidth + 2, barHeight + 2);
+                    this.context.fillStyle = '#ffffff';
+                    this.context.fillRect(x, cdY, Math.round(barWidth * remain), barHeight);
+                }
+            }
         },
 
         drawEntities: function(dirtyOnly) {

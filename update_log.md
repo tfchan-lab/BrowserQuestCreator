@@ -1,4 +1,4 @@
-﻿# BrowserQuest — Modernization Update Log
+# BrowserQuest ??Modernization Update Log
 
 ## Tasks completed
 
@@ -13,7 +13,7 @@
      (replaced with WHATWG `URL`).
 
 2. **Fixed Node.js API removals**
-   - `server/js/map.js`: `path.exists()` (removed in modern Node) → `fs.existsSync()`,
+   - `server/js/map.js`: `path.exists()` (removed in modern Node) ??`fs.existsSync()`,
      plus error handling for `fs.readFile`.
 
 3. **Dependency management**
@@ -25,10 +25,10 @@
    - Added npm scripts: `start` (game server) and `client` (static server).
 
 4. **Configuration files**
-   - `client/config/config_local.json` → `{ host: localhost, port: 8000 }`.
-   - `client/config/config_build.json` → needed because `client/js/config.js`
+   - `client/config/config_local.json` ??`{ host: localhost, port: 8000 }`.
+   - `client/config/config_build.json` ??needed because `client/js/config.js`
      loaded it unconditionally.
-   - `server/config_local.json` → local server config (metrics disabled).
+   - `server/config_local.json` ??local server config (metrics disabled).
    - Notably these are covered by `.gitignore` (`config_local*`, `config_build.json`);
      the `-dist` templates remain tracked.
 
@@ -47,7 +47,7 @@
    - Updated `server/js/ws.js`: the HTTP server now serves the `client/`
      directory at `/`, maps `/shared/*` to the repository `shared/` directory,
      keeps `/status`, and returns 405 for non-GET/HEAD.
-   - Client is now reachable at `http://localhost:8000/` — one process, one port.
+   - Client is now reachable at `http://localhost:8000/` ??one process, one port.
    - `npm run client` retained as an optional fallback (separate static server).
 
 8. **Inventory & equipment system + barebone HUD**
@@ -117,7 +117,7 @@
       so the equipping player never received their own `EQUIP` message. The old
       loot path masked this with an optimistic local swap, but equipping from the
       inventory panel had no such swap, so the sprite only updated on re-login.
-      Added `broadcastEquip(kind)` → `broadcast(equip, false)` (includes self) and
+      Added `broadcastEquip(kind)` ??`broadcast(equip, false)` (includes self) and
       used it in `addToInventory`, `equipFromInventory`, and `unequipSlot`.
     - Root cause (login portrait): the load-character screen shows a stored PNG
       (`player.image`) captured at save time. Equipping changed the kind fields but
@@ -133,7 +133,7 @@
       compressing all 6 frames into one icon box (the "row of 6 squeezed sprites").
       Changed `.inv-icon` (24x24) and `.equip-slot` (32x32) to
       `background-size:600% 100%; background-position:left center`, so the sheet is
-      drawn 6× the box width and the box shows only frame 0 (a single icon).
+      drawn 6? the box width and the box shows only frame 0 (a single icon).
     - Added a numeric HP readout: `#hp-text` span inside `#healthbar`
       (`index.html`), styled to overlay the bar (`main.css`, per-breakpoint font
       sizes) and updated in `app.initHealthBar`'s health callback as
@@ -167,7 +167,7 @@
 15. **Fix: mob HP bars never rendered; add targeted-mob HP bar**
     - **Bug (small bars invisible):** the draw condition included `!entity.isFading`.
       On desktop, `Entity.addEntity()` calls `entity.fadeIn()`, which sets
-      `isFading = true` and is *never* cleared — so every entity stays "fading"
+      `isFading = true` and is *never* cleared ??so every entity stays "fading"
       and the bar was permanently suppressed. Removed the `isFading` gate (fading
       is only a visual alpha effect, not a "disappearing" state); the bar now
       keys on `isAttacking() || aggroed || damaged`.
@@ -197,7 +197,7 @@
 
 17. **Fix: equip-switch HP exploit (free full heal)**
     - Root cause: gear changes called `Player.updateHitPoints()`, which is
-      `resetHitPoints(max)` → sets `hitPoints = maxHitPoints` (a full heal). The
+      `resetHitPoints(max)` ??sets `hitPoints = maxHitPoints` (a full heal). The
       client's `onPlayerChangeMaxHitPoints` also did `hitPoints = hp`, refilling on
       the max-HP message sent for armor changes.
     - Added `Player.updateMaxHitPoints()`: recomputes max HP from armor level and
@@ -205,7 +205,7 @@
       `equipItem`, `equipFromInventory`, and `unequipSlot` armor paths. Weapon
       paths never touch HP.
     - Client `onPlayerChangeMaxHitPoints` now only updates `maxHitPoints` and
-      clamps `hitPoints` — it no longer refills.
+      clamps `hitPoints` ??it no longer refills.
     - Result: switching **weapon** changes nothing HP-wise; switching **armor**
       changes only the maximum (current HP carried over / clamped). Spawn and the
       firepotion effect still intentionally set full HP.
@@ -236,7 +236,7 @@
       `client/js/sprites.generated.js`.
     - Consumables (flask/cake/burger/firepotion) remain hand-defined in
       `client/js/items.js`; chest and NPC builders unchanged.
-    - Docs: `tools/equipment/README.md` — full editor guide (schema, creating/
+    - Docs: `tools/equipment/README.md` ??full editor guide (schema, creating/
       editing items, ids, sprites, new categories, loader internals, validation).
 
 19. **Fix: renamed equipment broke HUD names + chest loot after `equipment:build`**
@@ -246,7 +246,7 @@
     - Root cause A (duplicate kinds): the loader registered each equipment name
       as an extra `kinds` entry while the original static name already existed,
       so every equipment id had **two** kind names. Code that uses the kind name
-      as the **sprite key** (`Types.getKindAsString` → `getKindAsString` used by
+      as the **sprite key** (`Types.getKindAsString` ??`getKindAsString` used by
       `entity.getSpriteName`, `gameclient` sprite/weapon names, hurt-sprite setup)
       got an inconsistent name, and `initHurtSprites` threw.
     - Root cause B (loader ran too early on the client): `equipment.js` captured
@@ -264,7 +264,7 @@
         `load()` always (re)install kinds/ranks into the current `Types`, while
         caching only the normalized registry.
       - `entityfactory.js`: depends on `equipment` (ensures loader ran) and
-        resolves builder kinds robustly (enum → registry by name → kind lookup).
+        resolves builder kinds robustly (enum ??registry by name ??kind lookup).
       - `app.js`: inventory HUD labels use the equipment **display name**
         (`getItemDisplayName`, turning `Steel_Sword` into "Steel Sword") instead
         of the sprite/asset key.
@@ -277,7 +277,7 @@
       room for now). Healing happens **only after the mob finishes returning** to
       its spawn point.
     - Design choice for client sync: a dedicated **state** message
-      (`MOB_HEALTH`, type 30) rather than despawn/respawn (c) — chosen because a
+      (`MOB_HEALTH`, type 30) rather than despawn/respawn (c) ??chosen because a
       future EXP system tracks kills via mob deaths; a respawn event could be
       confused with a kill/spawn, whereas a state update is unambiguous and keeps
       each mob's identity stable.
@@ -292,7 +292,7 @@
       - `WorldServer.detachPlayerFromAttackers(player)` extracted from
         `handlePlayerVanish`; called on death/teleport (via `handlePlayerVanish`)
         and now also on **logout** (`removePlayer`).
-      - `Messages.MobHealth` → `[MOB_HEALTH, id, hitPoints, maxHitPoints]`.
+      - `Messages.MobHealth` ??`[MOB_HEALTH, id, hitPoints, maxHitPoints]`.
     - Client: `gameclient.receiveMobHealth` + `onMobHealthChange`;
       `game.js` updates the mob's `hitPoints`/`maxHitPoints` and refreshes the
       target bar (the small bar hides automatically when HP is full).
@@ -311,7 +311,7 @@
         multiplier`. Vigor/Strength wired; other stats stored/displayed only.
       - Cooperative split `splitKillXP(baseXP, members)`: base XP split by party
         size; **higher-level players get a larger discount, lower-level players a
-        smaller discount (larger share)**; total awarded ≈ base XP.
+        smaller discount (larger share)**; total awarded ??base XP.
     - `server/js/properties.js`: added base `xp` per mob (rat 8, crab 14, bat 16,
       goblin 20, skeleton 45, snake 60, wizard 70, ogre 90, skeleton2/eye 100,
       spectre 150, deathknight 160, boss 600).
@@ -322,9 +322,9 @@
       now uses `attackPower()`.
     - `server/js/worldserver.js`: `awardKillXP(mob, attacker)` awards XP to every
       player in the mob's hatelist (treated as one party), called on mob death.
-    - Protocol: `PROGRESSION` (31) server→client snapshot
+    - Protocol: `PROGRESSION` (31) server?lient snapshot
       `[PROGRESSION, totalXp, level, xp, xpToNext, availablePoints, maxHitPoints,
-      vigor..arcane]`; `ALLOCATE_STAT` (32) client→server `[index, points]`.
+      vigor..arcane]`; `ALLOCATE_STAT` (32) client?erver `[index, points]`.
       `HELLO` extended with an optional 5th field (progression object); validated
       by `format.checkHello`.
     - Client: `gameclient` PROGRESSION handler / `onProgression` /
@@ -341,7 +341,7 @@
       current total, the manually-allocated `+N`, and a `+` button.
       Stat names have tooltips describing their (current/future) effect.
     - Opened via a new **Stats** button in the level display, by clicking the
-      level text, or the `C` key. Closed via its `×`, `C`, `Esc`, or
+      level text, or the `C` key. Closed via its `?`, `C`, `Esc`, or
       `app.hideWindows()`. The panel refreshes on every `PROGRESSION` update.
     - `+` buttons call `game.allocateStat(index, 1)` (server-authoritative):
       the server validates available points, recomputes stats, sends the new
@@ -354,12 +354,12 @@
       (`app.toggleStats()`), but the panel's `.close` element *also* matched the
       global `$('.close')` handler bound earlier (`app.hideWindows()`). One click
       fired both: `hideWindows()` closed the panel, then `toggleStats()`
-      immediately re-opened it — net no change. (jQuery reported 2 click handlers
+      immediately re-opened it ??net no change. (jQuery reported 2 click handlers
       on `#stats-panel .close`.)
     - Fix: removed the redundant `#stats-panel .close` handler; the panel is now
-      closed solely by the shared `$('.close')` → `app.hideWindows()` path (which
+      closed solely by the shared `$('.close')` ??`app.hideWindows()` path (which
       already removes the stats panel's `active` class). Outside-click closing
-      (via the foreground handler → `hideWindows()`) is unchanged.
+      (via the foreground handler ??`hideWindows()`) is unchanged.
     - Verified: `#stats-panel .close` now has exactly 1 click handler; clicking it
       closes the panel; `hideWindows()` closes it; no regressions.
 
@@ -389,7 +389,7 @@
     - Adds `#coords-display` inside the canvas border, top-right, showing the
       player's current grid position (`x, y`). Intended to help pick warp-point
       coordinates for the future teleport feature. (Checkpoint/respawn and login
-      spawn logic are left untouched — to be revamped later.)
+      spawn logic are left untouched ??to be revamped later.)
     - `game.js` `updateCoordsDisplay()` is called from the tick loop and only
       touches the DOM when the player's grid position changes.
 
@@ -437,10 +437,10 @@
       `client/js/sprites.generated.js`.
 
 27. **Warp item usable + NPC conversation options (shop no longer auto-opens)**
-    - **Warp item**: renamed the scroll to **[★ Initial Town]** via
+    - **Warp item**: renamed the scroll to **[??Initial Town]** via
       `Types.itemDisplayNames` (id 56). New message types `USE_ITEM` (35,
-      client→server) and `WARP` (36, server→the warping player). `Types` gains
-      `isUsableItem`, `warpDestinations` (scroll → 16,223 = initial town) and
+      client?erver) and `WARP` (36, server?he warping player). `Types` gains
+      `isUsableItem`, `warpDestinations` (scroll ??16,223 = initial town) and
       `itemDisplayNames`.
     - **Server** (`player.js` `useItem`): validates the item is usable + owned,
       consumes one unit, validates/repositions the player, broadcasts `TELEPORT`
@@ -451,7 +451,7 @@
       local player, recenters the camera and resets the zone. Inventory "Items"
       rows for usable items are clickable and show a `(use)` hint.
     - **Conversation options**: clicking an NPC now **only** cycles its normal
-      dialogue — it no longer opens the shop. If the NPC has a shop event, a
+      dialogue ??it no longer opens the shop. If the NPC has a shop event, a
       separate **clickable option bubble** ("Trade") appears above the NPC;
       clicking *it* opens the shop. Non-shop NPCs show no option bubble.
       Implemented via `BubbleManager.createOption` (pointer-events on, click
@@ -470,9 +470,9 @@
       damage is always an integer (previously fractional once Strength > 10 made
       `Levels.attackPower` non-integer). HP stays integral across all hits.
     - **Minimap**: `client/js/minimap.js` builds a one-time terrain thumbnail by
-      drawing the real tileset art at **3px per world tile** (supersampled → smooth
+      drawing the real tileset art at **3px per world tile** (supersampled ??smooth
       when scaled down; addresses the earlier "accurate but ugly/aliased" 1px look).
-      Two modes: **zoom** (125×125, local window ~70 tiles centred on the player,
+      Two modes: **zoom** (125?125, local window ~70 tiles centred on the player,
       with a camera viewport rectangle) and **fixed** (whole **overworld** at 125px
       wide). The fixed view **crops off the dungeon/room system** on the right of
       the map (renders only x < 93 tiles of open world) per user request. Toggle
@@ -487,7 +487,7 @@
       `client/index.html` (`#hud-topright`, `#minimap`, `#minimap-canvas`,
       `#minimap-toggle`), `client/css/main.css`.
 
-29. **In-app GUI map editor (`/editor`) — Phase 0–1 (hosting, shell, tile painter, save)**
+29. **In-app GUI map editor (`/editor`) ??Phase 0?? (hosting, shell, tile painter, save)**
     - **Hosting**: served by the existing game HTTP server at
       `http://localhost:8000/editor` (same port, same origin). Gated by a new
       `editor_enabled` config flag (added to `server/config.json` and
@@ -510,14 +510,14 @@
       both maps; the UI reports "server restart required" for server-map changes.
     - **Docs**: `editor/README.md`; `tools/README.md` points to the new editor.
 
-30. **Map editor Phases 2–4 (regions/triggers, NPC/mob placement, asset import) + toolbar fix**
+30. **Map editor Phases 2?? (regions/triggers, NPC/mob placement, asset import) + toolbar fix**
     - **Toolbar overflow fix**: the Save status message no longer forces the
       coordinate readout off-screen. Toolbar now uses flex-wrap with a dedicated,
       width-capped, ellipsised `#status`; `body` is a flex column and `#main`
       fills remaining height (previously a fixed `calc(100% - 44px)` with a fixed
       44px toolbar). Status has a `title` tooltip for truncated text.
-    - **Phase 2 — regions & triggers** (drag-rectangle tools): music areas (id,
-      e.g. `cave`), checkpoints (with "starting area" → server `s:1`), roaming mob
+    - **Phase 2 ??regions & triggers** (drag-rectangle tools): music areas (id,
+      e.g. `cave`), checkpoints (with "starting area" ??server `s:1`), roaming mob
       areas (`type`+`nb`), chest areas (item list). **Points** (click): doors/
       portals (target x/y, orientation, portal flag) written to **both** client and
       server maps; static chests; static mobs/items (`{flatIndex: kind}`).
@@ -525,11 +525,11 @@
       door, chest, static entity or NPC to edit its fields and delete it. Region and
       entity overlays are drawn (green/orange/blue/purple/yellow rects, cyan/red/
       magenta dots).
-    - **Phase 3 — NPC placement**: preview NPCs; add/drag/delete them; changes are
+    - **Phase 3 ??NPC placement**: preview NPCs; add/drag/delete them; changes are
       written to `shared/data/npcs.json` only on the explicit **Apply NPCs** button
       (then run `npcs:build`/restart). `Types` (gametypes.js) is loaded in the
-      editor page for kind name↔id conversion.
-    - **Phase 4 — asset import**: "Import asset…" dialog uploads a PNG or sprite
+      editor page for kind name?d conversion.
+    - **Phase 4 ??asset import**: "Import asset?? dialog uploads a PNG or sprite
       JSON via `POST /editor/api/asset` to an allow-listed repo path.
     - **Files**: `editor/index.html` (new tools, inspector, dialog, gametypes
       script), `editor/css/editor.css` (toolbar/inspector/dialog), `editor/js/
@@ -540,10 +540,10 @@
 31. **Editor select/move fixes + asset dimension reference**
     - **Static entity `Kind` field empty**: `pickAt`/`placePoint` created the
       `staticEntities` selection with only a `key`, but the inspector read `ref`
-      (undefined) → empty field. Now the selection carries `ref = map.staticEntities[key]`,
+      (undefined) ??empty field. Now the selection carries `ref = map.staticEntities[key]`,
       and editing the kind updates both the map and `ref`.
     - **Static entities overlapped by regions**: select/move now tests **points
-      first** (NPCs → doors → static chests → static entities) and only falls back
+      first** (NPCs ??doors ??static chests ??static entities) and only falls back
       to enclosing regions (music/checkpoint/roaming/chest areas) when no point is
       hit. Original BQ mobs/items can now be selected and edited even inside a
       music/roaming/chest area.
@@ -587,7 +587,7 @@
 
 34. **Fix sprite import `have is not defined`**
     - In `doImport` the `have`/`pngs` maps were declared inside the first
-      `.then` callback but referenced in the next `.then` — out of scope, so
+      `.then` callback but referenced in the next `.then` ??out of scope, so
       the import threw `have is not defined`. Hoisted them into the `doImport`
       function scope shared by the whole promise chain. Verified end-to-end
       (provide scale-2 only -> scales 1 & 3 auto-generated, manifest regenerated).
@@ -616,109 +616,296 @@
       `editor/js/editor.js`, `editor/README.md`, `client/maps/tiles.json` (new),
       `client/img/{1,2,3}/tilesheet.png` (updated).
 
+36. **Attack range & attack interval (weapons + mobs)**
+    - **Data**: weapons gain optional `attackRange` / `attackInterval` in
+      `shared/data/equipment.json` (+ schema). Subtype defaults: sword 2 tiles /
+      800ms (interval baseline), hammer/club 1 tile / 600ms (range baseline, faster),
+      axe 3 tiles / 1100ms (longest, slower). `Equipment.getAttackRange/getAttackInterval`
+      with subtype fallback; `Properties.getAttackRange/getAttackInterval` for weapons+mobs.
+    - **Player**: `attackRange`/`attackInterval` applied from the equipped weapon
+      (`Game.updatePlayerCombat` on load + weapon change; server `equipWeapon`).
+    - **Pathing**: ranged attackers no longer walk adjacent ??`Character.followPath`
+      truncates the path at the first tile within attack range (`truncatePathToAttackRange`);
+      melee/NPC/chest following keeps the original adjacent-stop. `canReachTarget` uses
+      Chebyshev distance for range >= 2 and non-diagonal adjacency for melee.
+    - **Mobs**: `attackRange` via `Types.getMobAttackRange` (default 1); existing per-class
+      attack rates preserved; added optional `Types.mobAttackRange/mobAttackInterval` tables.
+    - **HUD**: white weapon-slot cooldown overlay (`#weapon-cooldown`, top-anchored, shrinks
+      100%->0) driven by `Game.updateWeaponCooldownUI`; white mob cooldown bar above the short
+      HP bar (same length) in `Renderer.drawMobHealthBar`.
+    - **Files**: `shared/data/equipment.json`(+schema), `shared/js/equipment.js`,
+      `shared/js/gametypes.js`, `server/js/properties.js`, `server/js/player.js`,
+      `server/js/mob.js`, `client/js/character.js`, `client/js/mob.js`, `client/js/game.js`,
+      `client/js/renderer.js`, `client/index.html`, `client/css/main.css`.
+
+37. **Combat tuning + server-side guards (anti-cheat)**
+    - **Ranges (Euclidean):** sword 1.5 (orthogonal + diagonal adjacent), club/hammer 1
+      (orthogonal only), axe 2 (kiting). Updated `equipment.json` + subtype fallback;
+      `canReachTarget` and `truncatePathToAttackRange` use Euclidean distance.
+    - **Cooldown overlay direction:** `#weapon-cooldown` is now bottom-anchored
+      (`bottom:0`), so it counts down top->bottom (top clears first). Mob bar unchanged.
+    - **Anti-cheat (Option A):** `HIT`/`HURT` now carry the player's reported grid
+      position (`[HIT, mobId, x, y]`, format.js updated). Server enforces:
+      weapon/mob **attack interval** (`lastHitTime`/`lastAttackTime`, 120ms slack)
+      and a lenient **range guard** for HIT (reported pos vs mob, +0.75 tile tolerance).
+      HURT is rejected while invincible (firepotion), if the mob isn't targeting the
+      player, or within the mob's attack interval. (True 'skip HURT = invincible' would
+      need server-driven mob combat ??noted as future work.) Teleport spoofing accepted
+      as low-impact per decision.
+    - **Files:** `shared/data/equipment.json`(+schema), `shared/js/equipment.js`,
+      `client/js/character.js`, `client/js/game.js`, `client/js/gameclient.js`,
+      `server/js/player.js`, `server/js/format.js`, `client/css/main.css`.
+
+38. **New warp item: [Volcano Entrance]**
+    - Added entity kind `VOLCANOSCROLL` (id 57, object), `isUsableItem` includes it,
+      `warpDestinations[57] = {x:48, y:59}`, display name `[??Volcano Entrance]`.
+      Sell price 15 (server + client fallback). Added sprite `item-volcanoscroll`
+      (JSON + img/{1,2,3} PNGs, manifest regenerated). No shop entry added to Desert
+      Nomad (left for the editor).
+    - **Files**: `shared/js/gametypes.js`, `server/js/properties.js`,
+      `client/js/app.js`, `client/sprites/item-volcanoscroll.json`,
+      `client/img/{1,2,3}/item-volcanoscroll.png`, `client/js/sprites.generated.js`.
+
+39. **Map editor: NPC event (shop) editing + auto-regenerate npcs-data.js**
+    - NPC inspector now has an **Events** editor: add/delete shop events, add/delete
+      items, edit item kind + price (writes to `npc.events`; applied via Apply NPCs).
+      The item **kind** field is a **fuzzy-keyword dropdown**: focusing/typing shows a
+      filtered list of storable item kinds (exact/prefix/substring/subsequence scoring);
+      clicking an option sets it. Fixed data-ei/data-ii attributes being on the row
+      instead of the inputs/buttons.
+    - `Apply NPCs` now also regenerates `shared/js/npcs-data.js` server-side (new
+      `Editor.regenerateNpcsData`), so the client picks up new shops after a reload
+      (server restart required for server-side shop validation).
+    - **Files**: `editor/js/editor.js`, `editor/css/editor.css`, `server/js/editor.js`.
+
+40. **Fix: editor-applied NPC shop not usable until server restart**
+    - Cause: the editor API runs in the same Node process as the game server, but
+      the shared NPC registry (`shared/js/npcs.js`) is cached at startup and each
+      spawned NPC entity holds its spawn-time `npcConfig`. Saving `npcs.json` via
+      the editor updated the file/client data but the running server kept stale NPC
+      data, so `sellItem`/`buyItem` reported 'There is no shop here.'
+    - Fix: `NPCs.reload()` (new) resets the registry; `Editor.saveJsonFile` calls it
+      after writing `shared/data/npcs.json`; `Player.getAdjacentShopNpc` resolves the
+      current config from the registry by NPC id (fallback to the attached config).
+      Now applying in the editor takes effect on the running server without a restart
+      (client still needs a reload for the shop HUD/option).
+    - **Files**: `shared/js/npcs.js`, `server/js/editor.js`, `server/js/player.js`.
+
+41. **Warp confirmation on the bottom notification bar**
+    - Added server->client `NOTIFY` (37) message + `Messages.Notify`; `useItem` now
+      sends the 'You warped to ...' confirmation via NOTIFY instead of a Chat bubble.
+      Client `GameClient.onNotify` -> `Game.showNotification` -> `App.showMessage`
+      (the same bottom bar used for loot/defeat messages). Other `notify()` messages
+      (shop errors etc.) still use chat bubbles.
+    - **Files**: `shared/js/gametypes.js`, `server/js/message.js`,
+      `server/js/player.js`, `client/js/gameclient.js`, `client/js/game.js`.
+
+42. **Fix inventory duplication on death/respawn**
+    - **Inventory duplication (KEPT)**: on respawn the client re-sends HELLO with the
+      persisted loadout; the server's `applyPersistedLoadout` ADDED `inventoryCounts`
+      on top of the existing (same Player, isDead) inventory, duplicating stackable
+      items. It now RESETS `equipment`/`inventoryCounts` before applying (idempotent).
+    - **DISCARDED - server-authoritative mob attacks**: this task also introduced
+      `World.updateMobCombat()` (server-ticked mob damage, client HURT ignored). That
+      approach was buggy and has been fully reverted; mob damage is again resolved
+      client-side via HURT (the original pre-AR27 model). Only the inventory-dupe reset
+      above is retained.
+    - **Files**: `server/js/player.js` (inventory-dupe reset only).
+
+43. **DISCARDED - Fix fullscreen mob damage (server range reflects a real approach)**
+    - Part of the reverted server-tick mob combat (see task 42/44). Superseded by
+      returning to the original client-side mob AI; not present in the current code.
+
+44. **DISCARDED - Sync mob movement/attacks to the server**
+    - Part of the reverted server-authoritative mob sync (MOVE/ATTACK broadcasts,
+      server-driven cooldowns). Removed; clients again drive mobs locally and the
+      white mob cooldown bar is driven by the client mob AI (see task 36/AR6).
+
+45. **DISCARDED - Smooth mob movement + attack wind-up**
+    - Part of the reverted server-authoritative mob sync. Not present in the current code.
+
+46. **DISCARDED - Cadence-locked server-authoritative mob combat**
+    - Introduced the shared `Types.mobMoveSpeed` cadence table and `client.slideTo_`.
+      Removed in the revert; `slideTo_` and the cadence table no longer exist.
+
+47. **Return to pre-AR27 client-side combat + hidden-window disconnect**
+    - The server-authoritative mob movement/attack sync was buggy in practice.
+      Reverted to the original client-side mob AI that existed before AR27:
+      - `server/js/worldserver.js` restored to its pre-AR27 form (removed
+        `updateMobCombat` and its tick call; `move_callback` again repositions
+        attackers next to the player and detaches mobs dragged >50 tiles;
+        `onEntityAttack` again teleports an adjacent-ish mob next to its target).
+      - `server/js/player.js`: HURT handler restored (client-driven damage via
+        `Formulas.dmg` again); the task-37 HIT interval/range guards and the
+        task-42 `applyPersistedLoadout` inventory-dupe fix are KEPT.
+      - `server/js/message.js`: `Messages.Attack` no longer carries the optional
+        interval (`Messages.Notify` from task 41 kept).
+      - `client/js/game.js`: client mob AI restored in `onCharacterUpdate`
+        (sends HIT/HURT again); `onEntityMove` again `disengage`+`makeCharacterGoTo`;
+        `onEntityAttack` back to the lightweight `createAttackLink` path (no interval);
+        player-move `sendMove` again gated on `!isAttacking()`; HP handler restored
+        to the original `!invincible` guard. Kept task-37 `sendHit(mob,x,y)`,
+        weapon cooldown UI, warps, notify.
+      - `client/js/gameclient.js`: `receiveAttack` drops the interval arg
+        (`sendHit`/`sendHurt` still send x,y for the task-37 server guard; NOTIFY kept).
+      - `client/js/character.js`: removed `slideTo_`; KEPT weapon attack range/
+        interval + Euclidean `canReachTarget`/`truncatePathToAttackRange` (tasks 36/37).
+      - `client/js/mob.js`/`client/js/mobs.js`/`shared/js/gametypes.js`: removed the
+        shared `getMobMoveSpeed` cadence table; per-class client `moveSpeed` restored.
+      - `client/js/renderer.js`: removed the server-timed white mob cooldown bar.
+    - **Hidden-window disconnect (new)**: `client/js/main.js` adds a
+      `visibilitychange` listener that closes the socket when `document.hidden`.
+      `client/js/gameclient.js` gained `close()` (sets `closing`) and the
+      `onclose` handler shows 'disconnected because the browser window was hidden'.
+      Closing the socket makes the server remove the player cleanly (verified:
+      `/status` player count returns to 0).
+    - **Files**: server/js/worldserver.js, server/js/player.js, server/js/message.js,
+      server/js/mob.js, client/js/game.js, client/js/gameclient.js, client/js/character.js,
+      client/js/mob.js, client/js/mobs.js, client/js/renderer.js, shared/js/gametypes.js,
+      client/js/main.js.
+
+48. **Fix: HURT message format (Invalid HURT message format disconnect)**
+    - After the revert, the client's `onCharacterUpdate` calls `sendHurt(character)`
+      (one arg) but `sendHurt` still serialized `[HURT, mobId, x, y]` with
+      `undefined` x/y, producing `9,1020,,` which failed the server's
+      `['n','n','n']` format check and closed the connection.
+    - Reverted HURT to the original single-arg contract: `format.js` HURT is
+      now `['n']` and `gameclient.sendHurt(mob)` sends `[HURT, mobId]`.
+      The server HURT handler only ever uses `message[1]` (the mob id), so no
+      information is lost. HIT (task 37) is unchanged: `['n','n','n']` +
+      `sendHit(mob,x,y)` for the server-side range guard.
+    - **Files**: `server/js/format.js`, `client/js/gameclient.js`.
+
+49. **Restore mob attack-cooldown bar (was removed by mistake during the AR27 revert)**
+    - The white mob attack-cooldown bar is pre-AR27 functionality (AR6), driven
+      client-side: the client mob AI calls `Character.canAttack` ->
+      `attackCooldown.isOver(time)`, which stamps `lastTime` when the mob
+      attacks. The revert to pre-AR27 accidentally also removed the now-unneeded
+      server-synced drawing block from `drawMobHealthBar`.
+    - Restored the drawing block in `client/js/renderer.js` `drawMobHealthBar`:
+      a white bar above the HP bar, `remain = 1 - (currentTime - lastTime)/duration`,
+      drawn only when `attackCooldown.lastTime > 0`. No server-sync dependency.
+    - **Files**: `client/js/renderer.js`.
+
 ## Tested items
+
+> **Automated tests**: `npm run test` runs the Node unit suites and the regen
+> harness. Unit tests live in `test/` and cover every listed test case whose
+> target is a single function (pure or stub-constructible):
+> - `test/unit.test.js` - `Formulas` (hp/dmg, D1/D2), `Equipment` range/interval/price,
+>   `Properties.getSellPrice` (S3), `Types` kind/mob/scroll helpers (S2, W1), `Levels`
+>   curves/stats/XP/sanitize.
+> - `test/messages.test.js` - message serializers (M1, M2, M3, M8, M9, S4).
+> - `test/inventory.test.js` - Player inventory: loadout idempotency (AR26), duplicate
+>   routing, stack add/remove, `useItem` warp (W2).
+> - `test/character.test.js` - client `Character.canReachTarget` Euclidean geometry
+>   (AR3, AR7, AR8).
+> - `regen-suite.js` - passive regen (R1-R17).
+>
+> The M/S/W/D/MM/ED/AR rows below remain the manual/browser/websocket integration
+> checks (anything needing a live client, DOM, or server session).
 
 | # | Test | Result |
 |---|------|--------|
-| 1 | `npm install` completes | PASS — 56 packages installed |
+| 1 | `npm install` completes | PASS ??56 packages installed |
 | 2 | `npm start` boots 5 worlds + listens on :8000 | PASS |
-| 3 | `/status` HTTP endpoint | PASS — `[0,0,0,0,0]` |
-| 4 | WebSocket connect → receive `go` → send HELLO → receive WELCOME | PASS — WELCOME `[1,<id>,"Tester",x,y,...]` |
-| 5 | Static serving of `client/index.html` | PASS — 200 |
-| 6 | Static serving of `shared/js/gametypes.js` | PASS — 200 |
-| 7 | Static serving of `client/config/config_local.json` | PASS — 200 |
-| 8 | All 67 client sprite JSONs + `img/1..3` PNGs resolvable | PASS — no missing assets |
+| 3 | `/status` HTTP endpoint | PASS ??`[0,0,0,0,0]` |
+| 4 | WebSocket connect ??receive `go` ??send HELLO ??receive WELCOME | PASS ??WELCOME `[1,<id>,"Tester",x,y,...]` |
+| 5 | Static serving of `client/index.html` | PASS ??200 |
+| 6 | Static serving of `shared/js/gametypes.js` | PASS ??200 |
+| 7 | Static serving of `client/config/config_local.json` | PASS ??200 |
+| 8 | All 67 client sprite JSONs + `img/1..3` PNGs resolvable | PASS ??no missing assets |
 | 9 | Chrome headless loads client with no JS exceptions / console errors | PASS |
-| 10 | Chrome headless full flow: name → Enter → join | PASS — server logged `ChromeTester has joined world1`, `/status` = `[1,0,0,0,0]` |
-| 11 | Client loads even when `config_build.json` / `config_local.json` absent | PASS — no exceptions |
-| 12 | Integrated server: `GET /` and `/index.html` | PASS — 200 `text/html` |
-| 13 | Integrated server: `/shared/js/gametypes.js` | PASS — 200 `application/javascript` |
-| 14 | Integrated server: `/config/*.json`, `/js/*.js`, `/img/*.png`, `/sprites/*.json` | PASS — 200 with correct MIME types |
-| 15 | Integrated server: path traversal `..%2f..%2fpackage.json` | PASS — blocked (403) |
-| 16 | Integrated server: unknown path | PASS — 404 |
-| 17 | Integrated server: health check on same port | PASS — `/status` 200 `[0,0,0,0,0]` |
-| 18 | Chrome headless full flow from `http://localhost:8000/` | PASS — server logged `ChromeLocal has joined world1`, `/status` = `[1,0,0,0,0]`, no exceptions/errors |
-| 19 | Server inventory logic (unit): better item auto-equips | PASS — 12/12 unit checks |
+| 10 | Chrome headless full flow: name ??Enter ??join | PASS ??server logged `ChromeTester has joined world1`, `/status` = `[1,0,0,0,0]` |
+| 11 | Client loads even when `config_build.json` / `config_local.json` absent | PASS ??no exceptions |
+| 12 | Integrated server: `GET /` and `/index.html` | PASS ??200 `text/html` |
+| 13 | Integrated server: `/shared/js/gametypes.js` | PASS ??200 `application/javascript` |
+| 14 | Integrated server: `/config/*.json`, `/js/*.js`, `/img/*.png`, `/sprites/*.json` | PASS ??200 with correct MIME types |
+| 15 | Integrated server: path traversal `..%2f..%2fpackage.json` | PASS ??blocked (403) |
+| 16 | Integrated server: unknown path | PASS ??404 |
+| 17 | Integrated server: health check on same port | PASS ??`/status` 200 `[0,0,0,0,0]` |
+| 18 | Chrome headless full flow from `http://localhost:8000/` | PASS ??server logged `ChromeLocal has joined world1`, `/status` = `[1,0,0,0,0]`, no exceptions/errors |
+| 19 | Server inventory logic (unit): better item auto-equips | PASS ??12/12 unit checks |
 | 20 | Server inventory logic: weaker/duplicate item added but not auto-equipped | PASS |
 | 21 | Server inventory logic: manual equip of owned item / ignore non-owned | PASS |
 | 22 | Server inventory logic: unequip armor falls back to cloth, item retained | PASS |
 | 23 | `INVENTORY` message serialization layout `[type,[kinds],weapon,armor]` | PASS |
-| 24 | `LOOT` wire handler → `addToInventory` + `INVENTORY` sent | PASS — 7/7 loot/wire checks |
-| 25 | Chrome: press `I` opens inventory panel; starting items render | PASS — `items: ["60:Sword1","21:Clotharmor"]`, equipped icons correct |
-| 26 | Chrome: clicking an inventory item equips it via `EQUIP_ITEM` | PASS — server round-trip, no errors |
-| 27 | Chrome: real loot of an in-world Sword2 updates inventory + auto-equips | PASS — inventory `[21,60,61]`, equippedWeapon `61`, no exceptions |
+| 24 | `LOOT` wire handler ??`addToInventory` + `INVENTORY` sent | PASS ??7/7 loot/wire checks |
+| 25 | Chrome: press `I` opens inventory panel; starting items render | PASS ??`items: ["60:Sword1","21:Clotharmor"]`, equipped icons correct |
+| 26 | Chrome: clicking an inventory item equips it via `EQUIP_ITEM` | PASS ??server round-trip, no errors |
+| 27 | Chrome: real loot of an in-world Sword2 updates inventory + auto-equips | PASS ??inventory `[21,60,61]`, equippedWeapon `61`, no exceptions |
 | 28 | Chrome: no console errors / exceptions during inventory flows | PASS |
-| 29 | Fix: armor sprite on player did not change when equipping (animation stale) | PASS — `switchArmor` now clears `currentAnimation` and replays `idle`, rebuilding frames from the new sprite |
-| 30 | Chrome: `onPlayerEquipItem` (real EQUIP message) changes armor sprite + weapon name | PASS — `clotharmor`→`platearmor`, `sword1`→`axe`, animation bound to new sprite, no errors |
-| 31 | Server unit: HELLO accepts optional inventory array; nested/non-array handled | PASS — 16/16 persistence unit checks |
+| 29 | Fix: armor sprite on player did not change when equipping (animation stale) | PASS ??`switchArmor` now clears `currentAnimation` and replays `idle`, rebuilding frames from the new sprite |
+| 30 | Chrome: `onPlayerEquipItem` (real EQUIP message) changes armor sprite + weapon name | PASS ??`clotharmor`?platearmor`, `sword1`?axe`, animation bound to new sprite, no errors |
+| 31 | Server unit: HELLO accepts optional inventory array; nested/non-array handled | PASS ??16/16 persistence unit checks |
 | 32 | Server unit: seeded inventory filters unknown kinds, dedupes, keeps equipped | PASS |
-| 33 | Chrome: inventory persists across tab reload + re-login | PASS — session 1 `[21,60,61]` → after reload `[21,60,61]`, equipped `61`/`21` unchanged |
-| 34 | Chrome: tampered/foreign inventory in localStorage is sanitized (no crash/kick) | PASS — junk `[999,2,61,"x",21]` → login with `[sword2,clotharmor,sword1]` |
-| 35 | Server unit: equip/unequip broadcasts EQUIP to self (`ignoreSelf=false`) | PASS — 5/5 (armor, weapon, loot auto-equip, unequip) |
-| 36 | Wire: `EQUIP_ITEM` from client → server sends EQUIP back to the same player (batched) | PASS — weapon became `65`; `[13,<id>,65]` received |
-| 37 | Chrome (real server): equipping armor updates sprite immediately, no reload | PASS — `clotharmor`→`platearmor`, no exceptions |
-| 38 | Chrome (real server): stored login portrait regenerates on equip | PASS — portrait image length changed, `player.armor` = `platearmor` |
-| 39 | Chrome: inventory icon shows a single frame, not 6 squeezed | PASS — computed `background-size:600% 100%`; canvas clip analysis shows one icon (12 of 24 columns occupied) |
-| 40 | Chrome: HP numeric readout shows `current/total` and updates | PASS — `80/80` on start, `37/80` after damage |
+| 33 | Chrome: inventory persists across tab reload + re-login | PASS ??session 1 `[21,60,61]` ??after reload `[21,60,61]`, equipped `61`/`21` unchanged |
+| 34 | Chrome: tampered/foreign inventory in localStorage is sanitized (no crash/kick) | PASS ??junk `[999,2,61,"x",21]` ??login with `[sword2,clotharmor,sword1]` |
+| 35 | Server unit: equip/unequip broadcasts EQUIP to self (`ignoreSelf=false`) | PASS ??5/5 (armor, weapon, loot auto-equip, unequip) |
+| 36 | Wire: `EQUIP_ITEM` from client ??server sends EQUIP back to the same player (batched) | PASS ??weapon became `65`; `[13,<id>,65]` received |
+| 37 | Chrome (real server): equipping armor updates sprite immediately, no reload | PASS ??`clotharmor`?platearmor`, no exceptions |
+| 38 | Chrome (real server): stored login portrait regenerates on equip | PASS ??portrait image length changed, `player.armor` = `platearmor` |
+| 39 | Chrome: inventory icon shows a single frame, not 6 squeezed | PASS ??computed `background-size:600% 100%`; canvas clip analysis shows one icon (12 of 24 columns occupied) |
+| 40 | Chrome: HP numeric readout shows `current/total` and updates | PASS ??`80/80` on start, `37/80` after damage |
 | 41 | Chrome: no console errors / exceptions while opening inventory & HP | PASS |
-| 42 | Chrome: HP text is right-aligned on the bar | PASS — `justify-content:flex-end`, text right edge == bar right edge (431px) |
-| 43 | Server unit: `canRegen()` semantics | PASS — 9/9 (spawn, >2s idle, move reset, aggro block, aggro clear, 2000ms boundary) |
-| 44 | Server unit: regen tick body (player vs mob, heal amount, message) | PASS — 7/7 |
+| 42 | Chrome: HP text is right-aligned on the bar | PASS ??`justify-content:flex-end`, text right edge == bar right edge (431px) |
+| 43 | Server unit: `canRegen()` semantics | PASS ??9/9 (spawn, >2s idle, move reset, aggro block, aggro clear, 2000ms boundary) |
+| 44 | Server unit: regen tick body (player vs mob, heal amount, message) | PASS ??7/7 |
 | 45 | Server unit: no heal while moving or aggroed; heals by maxHp/25 when idle & safe | PASS |
-| 46 | Server unit: `DAMAGE` message carries current/max HP | PASS — 3/3 |
-| 47 | Chrome: mob HP bar drawn above aggroed/damaged mob sprite | PASS — bar ~20px wide centred above sprite; hidden at full HP |
-| 48 | Chrome: real `ATTACK` (mob→player) marks mob aggroed | PASS |
-| 49 | Fix: small mob HP bar never rendered (`isFading` gate) — now draws | PASS |
-| 50 | Server: mob spawn state + `SPAWN` message carry current/max HP | PASS — 4/4 |
-| 51 | Chrome: all freshly spawned mobs have non-zero hp/max | PASS — 25/25 |
-| 52 | Chrome: full target-mob HP bar (name + current/max) above player HP bar | PASS — `Rat 18/25`, above bar |
+| 46 | Server unit: `DAMAGE` message carries current/max HP | PASS ??3/3 |
+| 47 | Chrome: mob HP bar drawn above aggroed/damaged mob sprite | PASS ??bar ~20px wide centred above sprite; hidden at full HP |
+| 48 | Chrome: real `ATTACK` (mob?layer) marks mob aggroed | PASS |
+| 49 | Fix: small mob HP bar never rendered (`isFading` gate) ??now draws | PASS |
+| 50 | Server: mob spawn state + `SPAWN` message carry current/max HP | PASS ??4/4 |
+| 51 | Chrome: all freshly spawned mobs have non-zero hp/max | PASS ??25/25 |
+| 52 | Chrome: full target-mob HP bar (name + current/max) above player HP bar | PASS ??`Rat 18/25`, above bar |
 | 53 | Chrome: target bar hides when target cleared | PASS |
-| 54 | Short mob bar length is uniform across sprite sizes | PASS — both 16px and 32px sprites → 48px bar (scale 2) |
-| 55 | Target bar fill is red and non-zero height | PASS — fill `rgb(224,32,32)`, track height 12px, fill shrinks with HP |
-| 56 | Server: weapon switch does not heal or change max HP | PASS — 11/11 equip-heal checks |
+| 54 | Short mob bar length is uniform across sprite sizes | PASS ??both 16px and 32px sprites ??48px bar (scale 2) |
+| 55 | Target bar fill is red and non-zero height | PASS ??fill `rgb(224,32,32)`, track height 12px, fill shrinks with HP |
+| 56 | Server: weapon switch does not heal or change max HP | PASS ??11/11 equip-heal checks |
 | 57 | Server: armor switch changes max only, current HP carried over/clamped, no heal | PASS |
-| 58 | Chrome: damaged player switches weapon → stays damaged; switches armor → max changes, HP not refilled | PASS — `30/80` → weapon `30/80` → armor `30/110` |
-| 59 | `npm run equipment:build` valid JSON | PASS — 13 items / 2 types; 3 files generated |
-| 60 | Server loads equipment via loader; kinds/levels/maxHp resolve | PASS — sword1 lvl 1, platearmor maxHp 170, ranks correct |
-| 61 | Chrome: client loads Equipment + sprites, game starts, no JS exceptions | PASS — types `[weapon, armor]`, HP `80/80`, sprites loaded |
-| 62 | Chrome: loot sword2 → inventory + auto-equip + correct item icons | PASS — `[clotharmor,sword1,sword2]`, weapon 61, icons `item-*.png` |
-| 63 | Build validation rejects missing sprite / dup id (spot check) | PASS — fails cleanly, writes nothing |
-| 64 | Adding a new weapon to JSON registers it end-to-end | PASS — `warhammer` id 67, level 8, item class + builder generated |
-| 65 | Renamed equipment: no duplicate `kinds` entries; asset key stable | PASS — `getKindAsString(60)` = `sword1`, alias `Dagger`→60 |
-| 66 | Client installs `Types.Entities.*` for renamed items | PASS — `STEEL_SWORD`=61, `DAGGER`=60 |
-| 67 | HUD inventory labels show equipment display names | PASS — `["Dagger","Steel Sword","Steel Axe","Travel Clothes"]` |
-| 68 | Chest loot works with renamed equipment (no client error) | PASS — looted `sword2` items appear, no exceptions |
-| 69 | Mob unit: sole-hater mob heals to full on return + fires callback | PASS — 10/10 mob-heal checks |
+| 58 | Chrome: damaged player switches weapon ??stays damaged; switches armor ??max changes, HP not refilled | PASS ??`30/80` ??weapon `30/80` ??armor `30/110` |
+| 59 | `npm run equipment:build` valid JSON | PASS ??13 items / 2 types; 3 files generated |
+| 60 | Server loads equipment via loader; kinds/levels/maxHp resolve | PASS ??sword1 lvl 1, platearmor maxHp 170, ranks correct |
+| 61 | Chrome: client loads Equipment + sprites, game starts, no JS exceptions | PASS ??types `[weapon, armor]`, HP `80/80`, sprites loaded |
+| 62 | Chrome: loot sword2 ??inventory + auto-equip + correct item icons | PASS ??`[clotharmor,sword1,sword2]`, weapon 61, icons `item-*.png` |
+| 63 | Build validation rejects missing sprite / dup id (spot check) | PASS ??fails cleanly, writes nothing |
+| 64 | Adding a new weapon to JSON registers it end-to-end | PASS ??`warhammer` id 67, level 8, item class + builder generated |
+| 65 | Renamed equipment: no duplicate `kinds` entries; asset key stable | PASS ??`getKindAsString(60)` = `sword1`, alias `Dagger`??0 |
+| 66 | Client installs `Types.Entities.*` for renamed items | PASS ??`STEEL_SWORD`=61, `DAGGER`=60 |
+| 67 | HUD inventory labels show equipment display names | PASS ??`["Dagger","Steel Sword","Steel Axe","Travel Clothes"]` |
+| 68 | Chest loot works with renamed equipment (no client error) | PASS ??looted `sword2` items appear, no exceptions |
+| 69 | Mob unit: sole-hater mob heals to full on return + fires callback | PASS ??10/10 mob-heal checks |
 | 70 | Mob unit: multi-hater mob does not heal; re-aggro during return cancels heal | PASS |
-| 71 | `detachPlayerFromAttackers`: sole attacker detached & mob cleared | PASS — 4/4 |
-| 72 | Live server: logout of sole attacker heals damaged mob and pushes `MOB_HEALTH` | PASS — `[30, mob, 25, 25]` broadcast |
-| 73 | Client: `receiveMobHealth` updates mob HP (5/25 → 25/25), no exceptions | PASS |
-| 74 | Levels module: linear XP/level, stat curves, split, sanitize | PASS — manual checks (L1→L2=50, L3 stats, split) |
-| 75 | Server progression unit (XP→level, Vigor→HP, allocate, over-alloc guard, HELLO sanitize, message layout) | PASS — 17/17 |
-| 76 | Cooperative kill XP: split favours lower level (L3 +6, L8 +2 of 8); solo = full XP | PASS — 4/4 |
+| 71 | `detachPlayerFromAttackers`: sole attacker detached & mob cleared | PASS ??4/4 |
+| 72 | Live server: logout of sole attacker heals damaged mob and pushes `MOB_HEALTH` | PASS ??`[30, mob, 25, 25]` broadcast |
+| 73 | Client: `receiveMobHealth` updates mob HP (5/25 ??25/25), no exceptions | PASS |
+| 74 | Levels module: linear XP/level, stat curves, split, sanitize | PASS ??manual checks (L1?2=50, L3 stats, split) |
+| 75 | Server progression unit (XP?evel, Vigor?P, allocate, over-alloc guard, HELLO sanitize, message layout) | PASS ??17/17 |
+| 76 | Cooperative kill XP: split favours lower level (L3 +6, L8 +2 of 8); solo = full XP | PASS ??4/4 |
 | 77 | Live protocol: PROGRESSION on login; ALLOCATE_STAT handled, no server errors | PASS |
-| 78 | Chrome: HUD shows level/XP bar/stat points; allocate click persists | PASS — `Lv 1 0/50` → `Lv 3 70/150 47%`, points 2, allocated {vigor:1} |
-| 79 | Chrome: progression persists across reload+re-login via HELLO validation | PASS — restored Lv3, 70/150 XP, vigor 15, maxHp 90 |
-| 80 | Stats panel renders 8 rows with values/level/available points | PASS — `Level 4`, `3 points available`, Vigor=16…Arcane=13 |
-| 81 | Panel opens (Stats button / level click / C) and closes (× / C / Esc) | PASS |
-| 82 | `+` allocation is server-authoritative and updates stats/points live | PASS — Strength +1 → available 3→2, value 16→17, `+1` shown |
-| 83 | Vigor allocation raises max HP without healing current HP | PASS — maxHp 92→94, HP `92/94` |
-| 84 | Cannot over-allocate (client disables `+`; server clamps) | PASS — drained to 0 points, extra clicks blocked, `disabled` |
+| 78 | Chrome: HUD shows level/XP bar/stat points; allocate click persists | PASS ??`Lv 1 0/50` ??`Lv 3 70/150 47%`, points 2, allocated {vigor:1} |
+| 79 | Chrome: progression persists across reload+re-login via HELLO validation | PASS ??restored Lv3, 70/150 XP, vigor 15, maxHp 90 |
+| 80 | Stats panel renders 8 rows with values/level/available points | PASS ??`Level 4`, `3 points available`, Vigor=16?再rcane=13 |
+| 81 | Panel opens (Stats button / level click / C) and closes (? / C / Esc) | PASS |
+| 82 | `+` allocation is server-authoritative and updates stats/points live | PASS ??Strength +1 ??available 3??, value 16??7, `+1` shown |
+| 83 | Vigor allocation raises max HP without healing current HP | PASS ??maxHp 92??4, HP `92/94` |
+| 84 | Cannot over-allocate (client disables `+`; server clamps) | PASS ??drained to 0 points, extra clicks blocked, `disabled` |
 | 85 | Server boots / serves with panel changes; no client exceptions | PASS |
-| 86 | Character panel close button closes it (single handler) | PASS — `#stats-panel .close` has 1 click handler; click → inactive |
-| 87 | Outside-click still closes the panel | PASS — `hideWindows()` removes `active` |
+| 86 | Character panel close button closes it (single handler) | PASS ??`#stats-panel .close` has 1 click handler; click ??inactive |
+| 87 | Outside-click still closes the panel | PASS ??`hideWindows()` removes `active` |
 | 88 | No regression: open/other close paths unaffected | PASS |
-| 89 | `npm run npcs:build` validates data and generates `npcs-data.js` | PASS — 23 NPCs |
-| 90 | Server `spawnNpcs` spawns all 23 NPCs from data at correct coords with config | PASS — 8/8 (king at 126,138) |
-| 91 | Client loads NPC data; `talk()` returns configured lines, not hardcoded | PASS — sorcerer/king/agent lines from JSON |
-| 92 | Client NPC display name resolves by position (king→"King", coder→"Coder") | PASS |
-| 93 | Map NPC tiles no longer duplicate (NPCs only from data) | PASS — exactly 23 spawned |
+| 89 | `npm run npcs:build` validates data and generates `npcs-data.js` | PASS ??23 NPCs |
+| 90 | Server `spawnNpcs` spawns all 23 NPCs from data at correct coords with config | PASS ??8/8 (king at 126,138) |
+| 91 | Client loads NPC data; `talk()` returns configured lines, not hardcoded | PASS ??sorcerer/king/agent lines from JSON |
+| 92 | Client NPC display name resolves by position (king??King", coder??Coder") | PASS |
+| 93 | Map NPC tiles no longer duplicate (NPCs only from data) | PASS ??exactly 23 spawned |
 | 94 | Build rejects unknown `kind` (validation) | PASS |
-| 95 | Coordinate readout shows player grid x,y in top-right of the border | PASS — text matches `player.gridX/gridY` |
-| 96 | Coordinate readout updates live when the player's position changes | PASS — `41,233` → `100,50` |
+| 95 | Coordinate readout shows player grid x,y in top-right of the border | PASS ??text matches `player.gridX/gridY` |
+| 96 | Coordinate readout updates live when the player's position changes | PASS ??`41,233` ??`100,50` |
 | 97 | No client exceptions from the coordinate display | PASS |
 
-### Passive Regeneration — detailed test record
+### Passive Regeneration ??detailed test record
 
 Harness: `regen-suite.js` (server-side; builds real `Player` instances and runs the
 exact `worldserver.js` regen-tick body). Functions under test:
@@ -734,18 +921,18 @@ the `onRegenTick` closure in `WorldServer`. All 17 checks passed.
 | R5 | `canRegen()` after attacker removed | `true` | `true` | PASS |
 | R6 | `canRegen()` at exactly 2000ms idle | `false` | `false` | PASS |
 | R7 | `canRegen()` at 2001ms idle | `true` | `true` | PASS |
-| R8 | idle+safe player heals by `floor(maxHp/25)` (hp 10→13, maxHp 80) | `13` | `13` | PASS |
+| R8 | idle+safe player heals by `floor(maxHp/25)` (hp 10??3, maxHp 80) | `13` | `13` | PASS |
 | R9 | idle+safe player receives `HEALTH` regen update | `true` | `true` | PASS |
 | R10 | aggroed player does not heal (base rate 0) | `10` | `10` | PASS |
 | R11 | aggroed player receives no regen message | `false` | `false` | PASS |
 | R12 | player that just moved does not heal | `10` | `10` | PASS |
 | R13 | full-health player untouched | `80` | `80` | PASS |
-| R14 | three idle ticks accumulate (hp 1→10) | `10` | `10` | PASS |
+| R14 | three idle ticks accumulate (hp 1??0) | `10` | `10` | PASS |
 | R15 | regen never exceeds max HP | `80` | `80` | PASS |
 | R16 | mobs keep original regen (unaffected by player rule) | `9` | `9` | PASS |
 | R17 | heal rate equals `floor(80/25)=3` at current level | `13` | `13` | PASS |
 
-### Mob HP bar — detailed test record
+### Mob HP bar ??detailed test record
 
 Harness: server unit + Chrome headless driving the real client handlers/renderer.
 
@@ -757,13 +944,13 @@ Harness: server unit + Chrome headless driving the real client handlers/renderer
 | M4 | `drawMobHealthBar` geometry at 50% HP (20px track) | fill width `10` of `20`, bar above sprite | `{x:98,y:195,w:10,h:3}` fill of `w:20`, bar `y:194` above sprite `dy:200` | PASS |
 | M5 | `drawEntity` draws a bar for an aggroed/damaged mob | `true` | `true` | PASS |
 | M6 | `drawEntity` draws no bar when mob is full HP and not aggroed | `false` | `false` | PASS |
-| M7 | Real `ATTACK` (mob→local player) sets `mob.aggroed` | `true` | `true` | PASS |
+| M7 | Real `ATTACK` (mob?ocal player) sets `mob.aggroed` | `true` | `true` | PASS |
 | M8 | Mob spawn state carries HP (`Mob.getState`) | `[id,kind,x,y,orientation,0,12,50]` | `[7001,2,10,20,2,0,12,50]` | PASS |
 | M9 | `SPAWN` message carries hp at idx 7 / max at idx 8 | `12` / `50` | `12` / `50` | PASS |
 | M10 | Real spawn gives every mob non-zero hp/max on client | `25/25` | `25/25` (all 17 rats) | PASS |
 | M11 | Small bar renders for a damaged visible mob during `renderFrameDesktop` (isFading fix) | drawn | `barDrawnForTarget: true` | PASS |
 | M12 | Targeted mob shows full target HP bar (visible, name, text) | `visible`, `Rat`, `18/25` | `visible`, `Rat`, `18/25`, fill `72%` | PASS |
-| M13 | Target HP bar positioned above the player HP bar | bar bottom ≤ healthbar top | bar `y:602` above healthbar `y:609` | PASS |
+| M13 | Target HP bar positioned above the player HP bar | bar bottom ??healthbar top | bar `y:602` above healthbar `y:609` | PASS |
 | M14 | Target bar hides when target cleared | hidden | hidden | PASS |
 | M15 | Combined live check: small bar + target bar, no real JS exceptions | both true / none | `smallBarDrawn:true`, `targetBarVisible:true`, no exceptions | PASS |
 | S1 | Build tools (equipment + npcs) after data changes | OK / OK | `13 items`, `23 NPC(s)` | PASS |
@@ -778,29 +965,29 @@ Harness: server unit + Chrome headless driving the real client handlers/renderer
 | S10 | CDP: talk to Village Girl opens shop HUD, buy row 25g, disabled at 0 gold | active / 1 / disabled | `active / 1 / disabled` | PASS |
 | S11 | CDP reload persistence: gold 42, scroll x3, flask x2, steel sword owned, panel sections + x3 render | all true | all true | PASS |
 | S12 | `regen-suite.js` unaffected by inventory refactor | 17/17 | 17 passed, 0 failed | PASS |
-| W1 | `Types.isUsableItem`/`warpDestinations`/display name (Node) | true / 16,223 / `[★ Initial Town]` | same | PASS |
+| W1 | `Types.isUsableItem`/`warpDestinations`/display name (Node) | true / 16,223 / `[??Initial Town]` | same | PASS |
 | W2 | Server `useItem` unit: WARP[36,16,223], scroll consumed, notice sent | pos 16,223, left 1 | `[[36,16,223],[27,...],[11,...]]` | PASS |
 | W3 | Real WS bot: USE scroll warps to (16,223) + consumes 1 | warp 16,223 / count 0 | `[16,223]` / `0` | PASS |
-| W4 | WS bot: use with none left / non-usable item → no WARP | no new warp | no new warp | PASS |
+| W4 | WS bot: use with none left / non-usable item ??no WARP | no new warp | no new warp | PASS |
 | W5 | CDP: clicking Village Girl shows dialogue but does NOT open shop | dialogue / shop closed | `true / false` | PASS |
 | W6 | CDP: clickable "Trade" option bubble appears (pointer-events auto) | shown / auto | `true / "auto"` | PASS |
-| W7 | CDP: clicking option bubble opens shop; buy row named `[★ Initial Town]` | opens / named | `true / true` | PASS |
-| W8 | CDP: `useItem` warps local player to 16,223 and scroll count → 0 | 16,223 / 0 | `16,223 / 0` | PASS |
+| W7 | CDP: clicking option bubble opens shop; buy row named `[??Initial Town]` | opens / named | `true / true` | PASS |
+| W8 | CDP: `useItem` warps local player to 16,223 and scroll count ??0 | 16,223 / 0 | `16,223 / 0` | PASS |
 | W9 | CDP: Priest (no shop) shows no option bubble; talking twice cycles lines, shop stays closed | no-opt / differ / closed | `no-opt / differ / closed` | PASS |
 | W10 | Shop WS bot (buy) still works after message changes | gold 75 / count 3 | `75 / 3` | PASS |
 | D1 | `Formulas.dmg` always returns an integer (20k float rolls) | 0 non-int | 0 non-int | PASS |
 | D2 | HP stays integral after 1000 hits; regen-suite unaffected | int / 17/17 | int / 17 passed | PASS |
-| MM1 | Minimap terrain built (3px/tile supersampled) from real tileset | built / 516×942 | `516×942` | PASS |
+| MM1 | Minimap terrain built (3px/tile supersampled) from real tileset | built / 516?942 | `516?942` | PASS |
 | MM2 | Terrain has real colour variety (not blank) | true | true | PASS |
-| MM3 | Default zoom canvas 125×125; draw no-throw, no JS exceptions | 125×125 / none | same | PASS |
-| MM4 | Toggle to fixed: 125 wide × ~422 tall (overworld crop); label flips to "Local" | fixed / 125 / 422 | same | PASS |
-| MM5 | Dots: blue player + green NPC/players + red mobs present in zoom | blue>0, green>0, red>0 | `30 / … / 66` | PASS |
+| MM3 | Default zoom canvas 125?125; draw no-throw, no JS exceptions | 125?125 / none | same | PASS |
+| MM4 | Toggle to fixed: 125 wide ? ~422 tall (overworld crop); label flips to "Local" | fixed / 125 / 422 | same | PASS |
+| MM5 | Dots: blue player + green NPC/players + red mobs present in zoom | blue>0, green>0, red>0 | `30 / ??/ 66` | PASS |
 | MM6 | Fixed overworld view shows blue/green/red dots | blue>0 | `46 / 4806 / 72` | PASS |
 | MM7 | Coordinates positioned visually below the minimap | true | true | PASS |
-| MM8 | Regression: minimap showed as a 1px line in-game — global `canvas{position:absolute}` made `#minimap-canvas` absolute, collapsing `#minimap` height. Fix: `#minimap-canvas{position:static}`. | not collapsed | fixed | PASS |
+| MM8 | Regression: minimap showed as a 1px line in-game ??global `canvas{position:absolute}` made `#minimap-canvas` absolute, collapsing `#minimap` height. Fix: `#minimap-canvas{position:static}`. | not collapsed | fixed | PASS |
 | MM9 | `applySize` hardened against NaN/0 (fixed mode before map ready) and terrain-not-ready no longer collapses | no collapse | no collapse | PASS |
 | MM10 | Fixed world view crops to overworld (x<93); dungeon rooms excluded; `overworldW=93` | 93 | `93` | PASS |
-| MM11 | Look cleaned up: terrain drawn at 3px/tile and downscaled (smooth) instead of 1px/tile | supersampled | `516×942 terrain` | PASS |
+| MM11 | Look cleaned up: terrain drawn at 3px/tile and downscaled (smooth) instead of 1px/tile | supersampled | `516?942 terrain` | PASS |
 | MM12 | Zoom view closer: `zoomTiles` 70 -> 36 (smaller local window) | 36 | `36` | PASS |
 | MM13 | All dots (blue player / green players+NPCs / red mobs) share the player's radius 3.2 | unified | `radius = 3.2` for all | PASS |
 | MM14 | Clickable toggle button + `M` key cycle zoom -> fixed -> hidden -> zoom | 3 states | `zoom/fixed/hidden` | PASS |
@@ -833,6 +1020,32 @@ Harness: server unit + Chrome headless driving the real client handlers/renderer
 | ED26 | Selecting a tile shows its name in the status bar (from tiles.json registry) | shows | `test-missing2` | PASS |
 | ED27 | BUG: terrain import used `max data id + 1` = 1922, but 1921-1935 are a wave animation (`animated[1921].l=15`) -> overwrote wave frame 1922. Fix `nextTileId` to include animated frame spans | fixed | max=1935 -> next 1936 | PASS |
 | ED28 | Repaired overwritten wave frame 1922 (copied adjacent wave 1923) in all 3 sheets; re-imported test-missing2 at safe id #1936; waves 1921/1935 blue, 1936 = test art | ok | `1921/1935=82,144,184` / `1936=128,1,119` | PASS |
+| AR1 | Weapon attack range/interval by subtype: sword 2/800, club 1/600, axe 3/1100 (data-driven + subtype fallback) | as spec | matches | PASS |
+| AR2 | Client player.attackRange=2, attackCooldown.duration=800 for starting sword1 | 2 / 800 | 2 / 800 | PASS |
+| AR3 | canReachTarget: range 2 true at dist 2, false at 3; melee (range 1) excludes diagonal | correct | correct | PASS |
+| AR4 | followPath truncation stops at attack range (dest 2 tiles away, not adjacent) | dist 2 | dist 2 | PASS |
+| AR5 | Weapon-slot cooldown overlay: 100% at start -> 75% at 200/800ms -> 0% after | 100/75/0 | 100/75/0 | PASS |
+| AR6 | Mob cooldown bar draws above HP bar without error; mobs attackRange=1, interval 800 (per-class rates preserved) | ok | ok | PASS |
+| AR7 | Ranges retuned: sword 1.5 (Euclidean: orth+diag), club 1 (orth only), axe 2 | 1.5/1/2 | matches | PASS |
+| AR8 | Euclidean canReachTarget: sword diag true, dist-2 false, orth true | correct | correct | PASS |
+| AR9 | Weapon cooldown overlay bottom-anchored: 50% height occupies bottom half, top clears first (top->bottom) | bottom-aligned | bottomAligned true | PASS |
+| AR10 | Server HIT guard: interval blocks rapid 2nd hit; far (30-tile) hit rejected; axe dist-2 allowed; club dist-2 rejected; sword diag allowed | correct | 12/12 harness | PASS |
+| AR11 | Server HURT guard: valid damage; blocked while invincible (firepotion); blocked if mob targets another; interval blocks rapid 2nd | correct | correct | PASS |
+| AR12 | Live combat: adjacent HIT accepted (mob HP 25->18); connection OK with new HIT/HURT position fields | accepted | decreased | PASS |
+| AR13 | BUG: subsequent hits dealt no damage until player moved. Cause: first hit aggroes mob -> onEntityAttack repositions it next to the server's STALE player position; later range checks then failed. Fix: HIT adopts reported player position (`self.setPosition`) before `handleMobHate`. Live: 4 hits landed without moving (HP 25->17->12->4->2). Harness still 12/12 | fixed | fixed | PASS |
+| AR14 | BUG (edge case): mob stayed full HP until player moved. Cause: client suppresses MOVE while attacking, so server player position is stale during attack-approach; an aggressive mob aggroing mid-approach gets repositioned next to the stale position, so the first hit fails the server range guard. Fix: always send MOVE on start-pathing (incl. while attacking) so server position stays accurate. Live approach test: mob 25->21->15->13->10->6->0 without a post-approach move; harness 12/12 | fixed | fixed | PASS |
+| AR15 | Persistent edge case (aggressive mobs aggro before player attacks): AGGRO -> handleMobHate -> onEntityAttack repositions the mob next to the stale server player position, so the first HIT fails the range guard. Fix: skip the range guard when the mob is already targeting this player (mob.target === self.id); interval guard still applies. Harness 4/4 (fresh far blocked, aggroed far allowed, interval blocks); live aggroed-before-attack: 4 hits landed (HP 25->20->12->7->5->-1) | fixed | fixed | PASS |
+| AR16 | Fix healing dropped while invincible: client health handler skipped ALL updates when `player.invincible` (dropped passive regen + potion heals and desynced HP during fire potion). Now always applies authoritative HP; only the hurt visual is suppressed while invincible. Probe: heal-while-invincible 50->65 | fixed | 65 | PASS |
+| AR17 | Fix player disappearing after killing a mob: `switchArmor` blanking leaked its interval (local var could not be cleared) and could leave the player invisible; the optimistic armor switch on loot triggered it. Removed loot auto-switch (see AR18) + rewrote switchWeapon/switchArmor to store/clear the interval on the instance and always restore `setVisible(true)`. Overlapping switches + post-kill: player visible | fixed | visible | PASS |
+| AR18 | Remove original-BQ tier relation: no auto-equip/auto-switch. Server `addLootToInventory` only adds to equipment (no equip/broadcast); client `Item.onLoot` is a no-op; `Item.isBetterThanEquipped` and `Player.loot` rank comparison removed. Looting a higher-tier weapon leaves the equipped weapon unchanged (server: weapon stays 60, no EQUIP msg) | fixed | unchanged | PASS |
+| AR19 | Equipment slot logo now updates on actual equip: `onPlayerEquipItem` fires `equipment_callback` (initEquipmentIcons) for the local player. Equip sword1->steel sword: `#weapon` logo item-sword1 -> item-sword2 | fixed | updated | PASS |
+| AR20 | Volcano warp item: usable, warpDestinations[57]={48,59}, display `[Volcano Entrance]`, sell 15; icon PNGs + sprite manifest | ok | ok | PASS |
+| AR21 | WS bot: give volcanoscroll -> USE_ITEM 57 -> WARP [48,59], scroll consumed, notice shown | 48,59 | `[36,48,59]` | PASS |
+| AR22 | Editor NPC events: select Desert Nomad -> add shop event -> add item (volcanoscroll,20) -> Apply NPCs writes npcs.json + regenerates npcs-data.js | writes | `{type:shop,items:[{kind:volcanoscroll,price:20}]}` | PASS |
+| AR23 | Editor shop item kind: fuzzy-keyword dropdown. Focusing/typing in the item-kind field shows a filtered list of storable kinds (exact/prefix/substring/subsequence scoring); clicking sets the kind. Test: focus shows 8 candidates, `volc` filters to `volcanoscroll`, selection sets value + menu hides, Apply writes it | works | 7/7 | PASS |
+| AR24 | Shop live-reload: with server running, sell near Desert Nomad works (user shop price 50); Priest had no shop -> 'no shop'; applying a shop to Priest via /editor/api/save (no restart) -> sell works; data restored | works | `gold 3` before/after | PASS |
+| AR25 | Warp confirmation now prints on the bottom notification bar (not a chat bubble): added NOTIFY(37) message + Messages.Notify; useItem sends it; client onNotify -> game.showNotification. WS bot: NOTIFY text, no warp CHAT bubble, WARP still sent; CDP: message shows in #message1 | works | `#message1` text | PASS |
+| AR26 | Inventory no longer duplicates on re-applying the persisted loadout (respawn HELLO): flask stays 2, scroll 1, gold 42, equipment [60,21] after two applies | idempotent | idempotent | PASS |
 
 ## Known notes / non-blocking observations
 
@@ -845,7 +1058,7 @@ Harness: server unit + Chrome headless driving the real client handlers/renderer
   (~36-tile local window); fixed = whole **overworld** at 125px wide (~422px tall),
   cropping the dungeon rooms (renders x < 93 only; `OVERWORLD_W` constant in
   `minimap.js` for this
-  single shipped map — adjust if the map changes).
+  single shipped map ??adjust if the map changes).
 - **Minimap 1px-line regression (fixed)**: the global `canvas { position:absolute; }`
   rule (intended for the game canvases) also applied to `#minimap-canvas`, taking
   it out of flow so `#minimap` collapsed to a thin bordered line. `#minimap-canvas`
@@ -903,7 +1116,7 @@ Harness: server unit + Chrome headless driving the real client handlers/renderer
   the mob name and `current/max` just above the player HP bar. If multi-target
   selection is added later, point `Game.refreshTargetBar()` at the primary target.
 - Equip healing (fixed): gear changes used to call `updateHitPoints()` (a full
-  `resetHitPoints`), and the client's max-HP handler refilled current HP — giving
+  `resetHitPoints`), and the client's max-HP handler refilled current HP ??giving
   a free heal on every equip. Now armor changes use `updateMaxHitPoints()` (max
   changes, current HP carried over/clamped) and the client only updates max HP;
   weapon changes never touch HP. Spawn and the firepotion still set full HP.
@@ -930,7 +1143,7 @@ Harness: server unit + Chrome headless driving the real client handlers/renderer
   linearly (Vigor/Strength faster) plus 1 allocatable point per level. Vigor and
   Strength affect max HP and attack power; other stats are stored/displayed only.
   Cooperative kills split XP across every contributor (hatelist) treated as one
-  party — higher-level players get a larger discount, lower-level players a
+  party ??higher-level players get a larger discount, lower-level players a
   larger share. Progression persists in `localStorage` and is validated
   (clamped) by the server on HELLO. Points are spent through the **Character
   panel** (Stats button / click level / `C`), which lists every stat with its
@@ -946,101 +1159,101 @@ Harness: server unit + Chrome headless driving the real client handlers/renderer
 
 ## Files changed
 
-- `package.json` — deps pinned, ws added, scripts added
-- `package-lock.json` — regenerated
-- `server/js/ws.js` — rewritten on `ws`; now also serves the client + `/shared/*`
-- `server/js/static.js` — new: safe static file server (MIME + traversal guard)
-- `server/js/map.js` — `fs.existsSync` fix
-- `server/js/worldserver.js` — regen tick: players heal only when `canRegen()`;
+- `package.json` ??deps pinned, ws added, scripts added
+- `package-lock.json` ??regenerated
+- `server/js/ws.js` ??rewritten on `ws`; now also serves the client + `/shared/*`
+- `server/js/static.js` ??new: safe static file server (MIME + traversal guard)
+- `server/js/map.js` ??`fs.existsSync` fix
+- `server/js/worldserver.js` ??regen tick: players heal only when `canRegen()`;
   `detachPlayerFromAttackers` (death/teleport/logout); `addMob` wires mob
-  `onHealthChange` → broadcast `MOB_HEALTH`; `awardKillXP` (cooperative split);
+  `onHealthChange` ??broadcast `MOB_HEALTH`; `awardKillXP` (cooperative split);
   `spawnNpcs()` spawns NPCs from data; map NPC tiles skipped
-- `shared/data/npcs.json`, `shared/data/npcs.schema.json` — new: NPC data
-- `shared/js/npcs.js` — new: NPC loader (Node + browser)
-- `shared/js/npcs-data.js` — generated (inline NPC data)
-- `tools/npcs/build.js`, `tools/npcs/README.md` — new: NPC build + docs
-- `client/js/npc.js` — data-driven `talk()`/`getDisplayName()`/`getEvents()`
-- `client/js/npcs.js` — reads `idleSpeed` from data
-- `client/js/renderer.js` — draws NPC display names
-- `package.json` — `npcs:build` script; `prestart` runs both builds
-- `tools/README.md` — lists the NPC build tool
-- `shared/js/levels.js` — new: XP/level/stat curves, split, validation
-- `server/js/properties.js` — per-mob base `xp`
-- `server/js/formulas.js` — `dmg(attackPower, armorLevel)`
-- `server/js/player.js` — progression state, `gainXP`, `allocateStatPoint`,
-  Vigor→maxHP, Strength→attack power
-- `client/js/game.js` — progression state/callbacks, allocation, persistence
-- `client/js/app.js` — `updateProgression` HUD (level text + XP bar + points);
+- `shared/data/npcs.json`, `shared/data/npcs.schema.json` ??new: NPC data
+- `shared/js/npcs.js` ??new: NPC loader (Node + browser)
+- `shared/js/npcs-data.js` ??generated (inline NPC data)
+- `tools/npcs/build.js`, `tools/npcs/README.md` ??new: NPC build + docs
+- `client/js/npc.js` ??data-driven `talk()`/`getDisplayName()`/`getEvents()`
+- `client/js/npcs.js` ??reads `idleSpeed` from data
+- `client/js/renderer.js` ??draws NPC display names
+- `package.json` ??`npcs:build` script; `prestart` runs both builds
+- `tools/README.md` ??lists the NPC build tool
+- `shared/js/levels.js` ??new: XP/level/stat curves, split, validation
+- `server/js/properties.js` ??per-mob base `xp`
+- `server/js/formulas.js` ??`dmg(attackPower, armorLevel)`
+- `server/js/player.js` ??progression state, `gainXP`, `allocateStatPoint`,
+  Vigor?axHP, Strength?ttack power
+- `client/js/game.js` ??progression state/callbacks, allocation, persistence
+- `client/js/app.js` ??`updateProgression` HUD (level text + XP bar + points);
   stat-allocation panel (`updateStatsPanel`, `toggleStats`, stat labels)
-- `client/js/main.js` — Stats button / level-click / `C` key open the panel;
-  close via shared `$('.close')` → `hideWindows()` (removed the duplicate
+- `client/js/main.js` ??Stats button / level-click / `C` key open the panel;
+  close via shared `$('.close')` ??`hideWindows()` (removed the duplicate
   double-toggling stats-close handler); `onProgressionChange`
-- `client/index.html` — `#level-display` overlay + `#stats-panel` (Character) +
+- `client/index.html` ??`#level-display` overlay + `#stats-panel` (Character) +
   `#coords-display`
-- `client/css/main.css` — level/XP display, character/stats panel, coordinate
+- `client/css/main.css` ??level/XP display, character/stats panel, coordinate
   readout styles
-- `client/js/game.js` — `updateCoordsDisplay()` (top-right coordinate readout)
-- `server/js/player.js` — inventory state, `addToInventory`, `equipFromInventory`,
+- `client/js/game.js` ??`updateCoordsDisplay()` (top-right coordinate readout)
+- `server/js/player.js` ??inventory state, `addToInventory`, `equipFromInventory`,
   `unequipSlot`, `sendInventory`, `buildInventoryFromHello`, `broadcastEquip`
   (includes self), `isArmorOrWeaponKind` guard; LOOT branch adds to inventory;
   `lastMoveTime` + `canRegen()` (out-of-combat idle regeneration);
   `updateMaxHitPoints()` (armor changes alter max only, no heal)
-- `server/js/message.js` — `Messages.Inventory`; `Messages.Damage` now carries
+- `server/js/message.js` ??`Messages.Inventory`; `Messages.Damage` now carries
   `currentHitPoints` / `maxHitPoints`; `Messages.MobHealth` (`MOB_HEALTH`)
-- `server/js/format.js` — validation for `EQUIP_ITEM` / `UNEQUIP`; lenient
+- `server/js/format.js` ??validation for `EQUIP_ITEM` / `UNEQUIP`; lenient
   `checkHello` accepting an optional inventory array
-- `shared/js/gametypes.js` — message types 27/28/29/30 (`MOB_HEALTH`)
-- `client/js/config.js` — optional build config
-- `client/js/storage.js` — `player.inventory` + `setPlayerInventory` /
+- `shared/js/gametypes.js` ??message types 27/28/29/30 (`MOB_HEALTH`)
+- `client/js/config.js` ??optional build config
+- `client/js/storage.js` ??`player.inventory` + `setPlayerInventory` /
   `getPlayerInventory`
-- `client/js/gameclient.js` — INVENTORY handler, `sendEquipItem`/`sendUnequip`,
+- `client/js/gameclient.js` ??INVENTORY handler, `sendEquipItem`/`sendUnequip`,
   `sendHello(player, inventory)`; `receiveDamage` forwards mob HP;
   `receiveMobHealth` + `onMobHealthChange`
-- `client/js/renderer.js` — imports `mob`; `drawMobHealthBar()` + call in
+- `client/js/renderer.js` ??imports `mob`; `drawMobHealthBar()` + call in
   `drawEntity` for aggroed/damaged mobs (no `isFading` gate)
-- `client/js/game.js` — inventory state + accessors + `window.game` debug hook;
+- `client/js/game.js` ??inventory state + accessors + `window.game` debug hook;
   persists inventory on `onInventory`; `sendHello` sends persisted inventory;
   `onPlayerEquipItem` uses `switchArmor` for armor, refreshes weapon animation,
   and regenerates the stored portrait for the local player via
   `savePlayerPortrait`; stores mob HP on damage and marks `aggroed` on mob attack;
   `refreshTargetBar()` drives the targeted-mob HP bar from `player.target`;
   `onPlayerChangeMaxHitPoints` updates max only (clamps current, no refill)
-- `client/js/player.js` — loot no longer rejects duplicate/weaker items;
+- `client/js/player.js` ??loot no longer rejects duplicate/weaker items;
   `switchArmor` force-rebuilds the animation so the new sprite renders
-- `client/js/item.js` — optimistic equip only when better
-- `client/js/app.js` — `updateInventory`, `toggleInventory`, icon helpers; HP
+- `client/js/item.js` ??optimistic equip only when better
+- `client/js/app.js` ??`updateInventory`, `toggleInventory`, icon helpers; HP
   text updated in `initHealthBar` health callback; `updateTargetBar(mob)`
-- `client/js/main.js` — inventory panel events, `I` key, `onInventoryChange`
-- `client/index.html` — inventory panel markup; weapon/armor icons clickable;
+- `client/js/main.js` ??inventory panel events, `I` key, `onInventoryChange`
+- `client/index.html` ??inventory panel markup; weapon/armor icons clickable;
   `#hp-text` numeric HP readout inside `#healthbar`; `#target-bar` element
-- `client/css/main.css` — inventory panel styles; item icons show one frame
+- `client/css/main.css` ??inventory panel styles; item icons show one frame
   (`background-size:600% 100%`); `#hp-text` overlay styling (right-aligned);
   `#target-bar` styling + per-breakpoint geometry
-- `server/js/mob.js` — `getState()` appends orientation/target/hitPoints/maxHitPoints;
+- `server/js/mob.js` ??`getState()` appends orientation/target/hitPoints/maxHitPoints;
   `returnToSpawningPosition(wait, healOnArrival)` heals to full on arrival when
   the last hater is gone (cancelled by re-aggro); `onHealthChange`
-- `client/config/config_local.json`, `client/config/config_build.json` — new
-- `server/config_local.json` — new
-- `shared/data/equipment.json` — new: equipment source of truth
-- `shared/data/equipment.schema.json` — new: JSON schema for the editor
-- `shared/js/equipment.js` — new: equipment loader (Node + browser)
-- `shared/js/gametypes.js` — `registerKind` (aliases for duplicate names,
+- `client/config/config_local.json`, `client/config/config_build.json` ??new
+- `server/config_local.json` ??new
+- `shared/data/equipment.json` ??new: equipment source of truth
+- `shared/data/equipment.schema.json` ??new: JSON schema for the editor
+- `shared/js/equipment.js` ??new: equipment loader (Node + browser)
+- `shared/js/gametypes.js` ??`registerKind` (aliases for duplicate names,
   no duplicate `kinds`), `findKindNameById`, `getTypeOf`, tolerant `getType`
-- `shared/js/equipment.js` — lazy `Types` resolution; `load()` always re-installs
+- `shared/js/equipment.js` ??lazy `Types` resolution; `load()` always re-installs
   into the current `Types` (fixes browser load-order)
-- `server/js/properties.js` — levels/max HP from loader; `getMaxHitPoints`
-- `server/js/player.js` — max HP via `Properties.getMaxHitPoints`
-- `client/js/game.js` — sprite list from loader; `equipment` dependency
-- `client/js/item.js` — loader sprite names / loot text / rank comparisons
-- `client/js/items.js` — merges generated equipment classes + consumables
-- `client/js/sprites.js` — re-exports generated sprite manifest
-- `client/js/entityfactory.js` — `equipment` dependency; robust builder kind
+- `server/js/properties.js` ??levels/max HP from loader; `getMaxHitPoints`
+- `server/js/player.js` ??max HP via `Properties.getMaxHitPoints`
+- `client/js/game.js` ??sprite list from loader; `equipment` dependency
+- `client/js/item.js` ??loader sprite names / loot text / rank comparisons
+- `client/js/items.js` ??merges generated equipment classes + consumables
+- `client/js/sprites.js` ??re-exports generated sprite manifest
+- `client/js/entityfactory.js` ??`equipment` dependency; robust builder kind
   resolution from `Items._builders`
-- `client/js/app.js` — equipment-aware inventory listing, display names, icons
-- `tools/equipment/build.js` — new: validate + generate equipment files
-- `tools/equipment/README.md` — new: equipment editor documentation
-- `shared/js/equipment-data.js` — generated (browser inline data)
-- `client/js/items.generated.js` — generated (item classes + builders)
-- `client/js/sprites.generated.js` — generated (sprite manifest)
-- `package.json` — added `equipment:build` and `prestart` scripts
-- `README.md`, `server/README.md`, `client/README.md` — updated
+- `client/js/app.js` ??equipment-aware inventory listing, display names, icons
+- `tools/equipment/build.js` ??new: validate + generate equipment files
+- `tools/equipment/README.md` ??new: equipment editor documentation
+- `shared/js/equipment-data.js` ??generated (browser inline data)
+- `client/js/items.generated.js` ??generated (item classes + builders)
+- `client/js/sprites.generated.js` ??generated (sprite manifest)
+- `package.json` ??added `equipment:build` and `prestart` scripts
+- `README.md`, `server/README.md`, `client/README.md` ??updated

@@ -165,6 +165,18 @@ define(['jquery', 'app'], function($, App) {
             });
         
             document.addEventListener("touchstart", function() {},false);
+
+            // Disconnect the player when the browser window/tab is hidden. A hidden
+            // window throttles the client's render/tick loop, which would otherwise
+            // let the player sit in the world (unresponsive) while other clients keep
+            // playing. Closing the socket makes the server remove the player cleanly.
+            document.addEventListener("visibilitychange", function() {
+                if(document.hidden && game && game.started && game.client
+                   && game.client.connection
+                   && game.client.connection.readyState === 1) { // WebSocket.OPEN
+                    game.client.close();
+                }
+            });
             
             $('#resize-check').bind("transitionend", app.resizeUi.bind(app));
             $('#resize-check').bind("webkitTransitionEnd", app.resizeUi.bind(app));

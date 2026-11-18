@@ -217,7 +217,8 @@ Properties.itemSellPrices = {
     burger: 5,
     cake: 8,
     firepotion: 10,
-    teleportscroll: 15
+    teleportscroll: 15,
+    volcanoscroll: 15
 };
 
 Properties.getSellPrice = function(kind) {
@@ -226,6 +227,28 @@ Properties.getSellPrice = function(kind) {
     }
     var name = Types.getKindAsString(kind);
     return (name && Properties.itemSellPrices[name]) || 1;
+};
+
+/** Attack range (tiles) for a weapon or mob kind. */
+Properties.getAttackRange = function(kind) {
+    if(Types.isWeapon(kind)) {
+        return Equipment.getAttackRange(kind);
+    }
+    if(Types.isMob(kind)) {
+        return Types.getMobAttackRange(kind);
+    }
+    return 1;
+};
+
+/** Attack interval (ms) for a weapon or mob kind. */
+Properties.getAttackInterval = function(kind) {
+    if(Types.isWeapon(kind)) {
+        return Equipment.getAttackInterval(kind);
+    }
+    if(Types.isMob(kind)) {
+        return Types.getMobAttackInterval(kind);
+    }
+    return 800;
 };
 
 module.exports = Properties;

@@ -7,7 +7,8 @@
             "id": "guard_west_gate_1",
             "name": "Guard",
             "kind": "guard",
-            "x": 4, "y": 195,
+            "x": 4,
+            "y": 195,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -20,7 +21,8 @@
             "id": "guard_west_gate_2",
             "name": "Guard",
             "kind": "guard",
-            "x": 7, "y": 195,
+            "x": 7,
+            "y": 195,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -33,7 +35,8 @@
             "id": "guard_north_gate_1",
             "name": "Guard",
             "kind": "guard",
-            "x": 41, "y": 195,
+            "x": 41,
+            "y": 195,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -46,7 +49,8 @@
             "id": "guard_north_gate_2",
             "name": "Guard",
             "kind": "guard",
-            "x": 47, "y": 195,
+            "x": 47,
+            "y": 195,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -59,7 +63,8 @@
             "id": "guard_east_gate_1",
             "name": "Guard",
             "kind": "guard",
-            "x": 70, "y": 197,
+            "x": 70,
+            "y": 197,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -72,7 +77,8 @@
             "id": "guard_east_gate_2",
             "name": "Guard",
             "kind": "guard",
-            "x": 73, "y": 197,
+            "x": 73,
+            "y": 197,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -85,7 +91,8 @@
             "id": "guard_forest_1",
             "name": "Guard",
             "kind": "guard",
-            "x": 32, "y": 257,
+            "x": 32,
+            "y": 257,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -98,7 +105,8 @@
             "id": "guard_forest_2",
             "name": "Guard",
             "kind": "guard",
-            "x": 38, "y": 257,
+            "x": 38,
+            "y": 257,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -111,7 +119,8 @@
             "id": "guard_south_1",
             "name": "Guard",
             "kind": "guard",
-            "x": 65, "y": 253,
+            "x": 65,
+            "y": 253,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -124,7 +133,8 @@
             "id": "guard_south_2",
             "name": "Guard",
             "kind": "guard",
-            "x": 72, "y": 253,
+            "x": 72,
+            "y": 253,
             "conversations": [
                 "Hello there",
                 "We don't need to see your identification",
@@ -137,7 +147,8 @@
             "id": "king",
             "name": "King",
             "kind": "king",
-            "x": 126, "y": 138,
+            "x": 126,
+            "y": 138,
             "conversations": [
                 "Hi, I'm the King",
                 "I run this place",
@@ -157,7 +168,8 @@
             "id": "villagegirl",
             "name": "Village Girl",
             "kind": "villagegirl",
-            "x": 15, "y": 222,
+            "x": 15,
+            "y": 222,
             "conversations": [
                 "Hi there, adventurer!",
                 "How do you like this game?",
@@ -171,7 +183,10 @@
                 {
                     "type": "shop",
                     "items": [
-                        { "kind": "teleportscroll", "price": 25 }
+                        {
+                            "kind": "teleportscroll",
+                            "price": 25
+                        }
                     ]
                 }
             ]
@@ -180,7 +195,8 @@
             "id": "villager",
             "name": "Villager",
             "kind": "villager",
-            "x": 37, "y": 200,
+            "x": 37,
+            "y": 200,
             "conversations": [
                 "Howdy stranger. Do you like poetry?",
                 "Roses are red, violets are blue...",
@@ -196,7 +212,8 @@
             "id": "agent",
             "name": "Agent",
             "kind": "agent",
-            "x": 67, "y": 220,
+            "x": 67,
+            "y": 220,
             "conversations": [
                 "Do not try to bend the sword",
                 "That's impossible",
@@ -209,7 +226,8 @@
             "id": "rick",
             "name": "Rick",
             "kind": "rick",
-            "x": 127, "y": 186,
+            "x": 127,
+            "y": 186,
             "conversations": [
                 "We're no strangers to love",
                 "You know the rules and so do I",
@@ -230,7 +248,8 @@
             "id": "scientist",
             "name": "Scientist",
             "kind": "scientist",
-            "x": 127, "y": 293,
+            "x": 127,
+            "y": 293,
             "conversations": [
                 "Greetings.",
                 "I am the inventor of these two potions.",
@@ -247,7 +266,8 @@
             "name": "Nyan Cat",
             "kind": "nyan",
             "idleSpeed": 50,
-            "x": 75, "y": 164,
+            "x": 75,
+            "y": 164,
             "conversations": [
                 "nyan nyan nyan nyan nyan",
                 "nyan nyan nyan nyan nyan nyan nyan",
@@ -260,7 +280,8 @@
             "id": "priest",
             "name": "Priest",
             "kind": "priest",
-            "x": 18, "y": 209,
+            "x": 18,
+            "y": 209,
             "conversations": [
                 "Oh, hello, young man.",
                 "Wisdom is everything, so I'll share a few guidelines with you.",
@@ -280,7 +301,8 @@
             "name": "Sorcerer",
             "kind": "sorcerer",
             "idleSpeed": 150,
-            "x": 15, "y": 246,
+            "x": 15,
+            "y": 246,
             "conversations": [
                 "Ah... I had foreseen you would come to see me.",
                 "Well? How do you like my new staff?",
@@ -300,7 +322,8 @@
             "id": "octocat",
             "name": "Octocat",
             "kind": "octocat",
-            "x": 10, "y": 235,
+            "x": 10,
+            "y": 235,
             "conversations": [
                 "Welcome to BrowserQuest!",
                 "Want to see the source code?",
@@ -312,7 +335,8 @@
             "id": "coder",
             "name": "Coder",
             "kind": "coder",
-            "x": 154, "y": 138,
+            "x": 154,
+            "y": 138,
             "conversations": [
                 "Hi! Do you know that you can also play BrowserQuest on your tablet or mobile?",
                 "That's the beauty of HTML5!",
@@ -324,7 +348,8 @@
             "id": "beachnpc",
             "name": "Beachcomber",
             "kind": "beachnpc",
-            "x": 76, "y": 293,
+            "x": 76,
+            "y": 293,
             "conversations": [
                 "Don't mind me, I'm just here on vacation.",
                 "I have to say...",
@@ -337,7 +362,8 @@
             "id": "desertnpc",
             "name": "Desert Nomad",
             "kind": "desertnpc",
-            "x": 48, "y": 57,
+            "x": 48,
+            "y": 57,
             "conversations": [
                 "One does not simply walk into these mountains...",
                 "An ancient undead lord is said to dwell here.",
@@ -345,7 +371,17 @@
                 "...for none has lived to tell the tale.",
                 "It's not too late to turn around and go home, kid."
             ],
-            "events": []
+            "events": [
+                {
+                    "type": "shop",
+                    "items": [
+                        {
+                            "kind": "volcanoscroll",
+                            "price": 50
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

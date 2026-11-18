@@ -18,6 +18,7 @@ define(['entity', 'transition', 'timer'], function(Entity, Transition, Timer) {
     		this.walkSpeed = 100;
     		this.idleSpeed = 450;
     		this.setAttackRate(800);
+            this.attackRange = 1;   // tiles; set per-weapon for the player
         
             // Pathing
     		this.movement = new Transition();
@@ -120,7 +121,7 @@ define(['entity', 'transition', 'timer'], function(Entity, Transition, Timer) {
                 this.followPath(path);
             }
         },
-    
+
         requestPathfindingTo: function(x, y) {
             if(this.request_path_callback) {
                 return this.request_path_callback(x, y);
@@ -144,12 +145,26 @@ define(['entity', 'transition', 'timer'], function(Entity, Transition, Timer) {
 	
     	followPath: function(path) {
     		if(path.length > 1) { // Length of 1 means the player has clicked on himself
+                if(this.followingMode) {
+                    if(this.attackingMode && this.target && (this.attackRange || 1) > 1) {
+                        // Ranged attacker: stop at the first tile that is within
+                        // attack range of the target instead of walking adjacent.
+                        path = this.truncatePathToAttackRange(path);
+                    } else {
+                        // Melee / non-combat following (NPC, chest): stop adjacent.
+                        path.pop();
+                    }
+                }
+
+                if(path.length < 2) {
+                    // Already within range (or path collapsed): don't move.
+                    this.path = null;
+                    this.idle();
+                    return;
+                }
+
     			this.path = path;
     			this.step = 0;
-			
-                if(this.followingMode) { // following a character
-                    path.pop();
-                }
 			
                 if(this.start_pathing_callback) {
                     this.start_pathing_callback(path);
@@ -157,6 +172,26 @@ define(['entity', 'transition', 'timer'], function(Entity, Transition, Timer) {
                 this.nextStep();
     		}
     	},
+
+        /**
+         * Returns a prefix of `path` ending at the first tile whose Chebyshev
+         * distance to the target is <= attackRange. If the very first tile is
+         * already in range, returns just that tile (path length 1 -> no move).
+         */
+        truncatePathToAttackRange: function(path) {
+            var range = this.attackRange || 1,
+                tx = this.target.gridX,
+                ty = this.target.gridY;
+
+            for(var i = 0; i < path.length; i++) {
+                var dx = Math.abs(path[i][0] - tx),
+                    dy = Math.abs(path[i][1] - ty);
+                if(Math.sqrt(dx * dx + dy * dy) <= range + 1e-6) {
+                    return path.slice(0, i + 1);
+                }
+            }
+            return path;
+        },
 
     	continueTo: function(x, y) {
     		this.newDestination = { x: x, y: y };
@@ -501,10 +536,16 @@ define(['entity', 'transition', 'timer'], function(Entity, Transition, Timer) {
         },
         
         canReachTarget: function() {
-            if(this.hasTarget() && this.isAdjacentNonDiagonal(this.target)) {
-                return true;
+            if(!this.hasTarget()) {
+                return false;
             }
-            return false;
+            var range = this.attackRange || 1,
+                dx = Math.abs(this.gridX - this.target.gridX),
+                dy = Math.abs(this.gridY - this.target.gridY),
+                dist = Math.sqrt(dx * dx + dy * dy);
+            // Euclidean: orth-adjacent = 1, diag-adjacent ~= 1.414.
+            // range 1 -> orthogonal only; 1.5 -> +diagonals; 2 -> up to 2 straight.
+            return dist <= range + 1e-6;
         },
     
         /**

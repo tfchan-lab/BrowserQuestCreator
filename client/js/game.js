@@ -83,7 +83,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                                 "sorcerer", "octocat", "beachnpc", "forestnpc", "desertnpc", "lavanpc", "clotharmor", "leatherarmor", "mailarmor", 
                                 "platearmor", "redarmor", "goldenarmor", "firefox", "death", "sword1", "axe", "chest",
                                 "sword2", "redsword", "bluesword", "goldensword", "item-sword2", "item-axe", "item-redsword", "item-bluesword", "item-goldensword", "item-leatherarmor", "item-mailarmor", 
-                                "item-platearmor", "item-redarmor", "item-goldenarmor", "item-flask", "item-cake", "item-burger", "morningstar", "item-morningstar", "item-firepotion"];
+                                "item-platearmor", "item-redarmor", "item-goldenarmor", "item-flask", "item-cake", "item-burger", "morningstar", "item-morningstar", "item-firepotion", "item-teleportscroll", "item-volcanoscroll"];
 
             // Add any sprite names declared by the equipment data (so new
             // weapons/armors/types are loaded without editing this list).
@@ -199,8 +199,44 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
         
         	this.player.setSprite(this.sprites[this.player.getSpriteName()]);
         	this.player.idle();
+            this.updatePlayerCombat(this.player);
         
     	    log.debug("Finished initPlayer");
+        },
+
+        /**
+         * Applies the equipped weapon's attack range and interval to the player.
+         * Range/interval come from the equipment data (with subtype defaults).
+         */
+        updatePlayerCombat: function(player) {
+            if(!player) { return; }
+            var kind = Types.getKindFromString(player.getWeaponName());
+            var range = (Equipment.getAttackRange) ? Equipment.getAttackRange(kind) : 1;
+            var interval = (Equipment.getAttackInterval) ? Equipment.getAttackInterval(kind) : 800;
+            player.attackRange = range;
+            player.setAttackRate(interval);
+        },
+
+        /**
+         * Drives the white cooldown overlay on the weapon slot icon. The overlay
+         * is full right after an attack and shrinks (top-anchored) to nothing as
+         * the weapon's attack interval elapses.
+         */
+        updateWeaponCooldownUI: function() {
+            var player = this.player,
+                el = document.getElementById('weapon-cooldown');
+            if(!player || !el || !player.attackCooldown) { return; }
+            var cd = player.attackCooldown,
+                remain = 0;
+            if(cd.lastTime > 0) {
+                remain = 1 - ((this.currentTime - cd.lastTime) / cd.duration);
+                if(remain < 0) { remain = 0; }
+                if(remain > 1) { remain = 1; }
+            }
+            var pct = Math.round(remain * 100);
+            if(pct === this._weaponCooldownPct) { return; }
+            this._weaponCooldownPct = pct;
+            el.style.height = pct + '%';
         },
 
         initShadows: function() {
@@ -759,6 +795,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                 this.renderer.renderFrame();
                 this.refreshTargetBar();
                 this.updateCoordsDisplay();
+                this.updateWeaponCooldownUI();
                 this.repositionOptionBubbles();
                 if(this.minimap) { this.minimap.draw(); }
             }
@@ -1602,12 +1639,20 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                             // animation must be rebuilt to show the new weapon.
                             player.currentAnimation = null;
                             player.idle(player.orientation);
+                            if(playerId === self.playerId) {
+                                self.updatePlayerCombat(player);
+                            }
                         }
 
                         // Keep the stored portrait in sync so the login/load screen
                         // shows the currently equipped gear.
                         if(playerId === self.playerId) {
                             self.savePlayerPortrait();
+                            // Refresh the bottom-bar weapon/armor slot icons so they
+                            // always reflect the actually-equipped gear (manual equip).
+                            if(self.equipment_callback) {
+                                self.equipment_callback();
+                            }
                         }
                     }
                 });
@@ -1639,6 +1684,12 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                     self.makeCharacterTeleportTo(self.player, x, y);
                     self.camera.focusEntity(self.player);
                     self.resetZone();
+                });
+
+                self.client.onNotify(function(text) {
+                    // Short system messages (e.g. warp confirmation) go to the
+                    // bottom notification bar, not a chat bubble.
+                    self.showNotification(text);
                 });
 
                 self.client.onDropItem(function(item, mobId) {
@@ -2369,7 +2420,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                         character.hit();
                         
                         if(character.id === this.playerId) {
-                            this.client.sendHit(character.target);
+                            this.client.sendHit(character.target, character.gridX, character.gridY);
                         }
                         
                         if(character instanceof Player && this.camera.isVisible(character)) {

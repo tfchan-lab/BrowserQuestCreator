@@ -371,7 +371,17 @@ var BQ_NPC_DATA = {
                 "...for none has lived to tell the tale.",
                 "It's not too late to turn around and go home, kid."
             ],
-            "events": []
+            "events": [
+                {
+                    "type": "shop",
+                    "items": [
+                        {
+                            "kind": "volcanoscroll",
+                            "price": 50
+                        }
+                    ]
+                }
+            ]
         }
     ]
 };
