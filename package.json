@@ -9,6 +9,8 @@
     , "npcs:build": "node tools/npcs/build.js"
     , "prestart": "node tools/equipment/build.js && node tools/npcs/build.js"
     , "test": "node --test test/*.test.js && node regen-suite.js"
+    , "lan:check": "node tools/lan/diagnose.js"
+    , "lan:firewall": "powershell -ExecutionPolicy Bypass -File tools/lan/setup-firewall.ps1"
   }
   , "dependencies": {
     "underscore": "1.8.3"

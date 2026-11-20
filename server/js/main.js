@@ -1,6 +1,40 @@
 
 var fs = require('fs'),
+    os = require('os'),
     Metrics = require('./metrics');
+
+/**
+ * Returns the machine's IPv4 addresses that a normal device on the same LAN can
+ * reach, ordered best-first (real Wi-Fi/Ethernet NICs before virtual adapters).
+ *
+ * Excluded: loopback, link-local (169.254.x), Tailscale/CGNAT (100.64.0.0/10),
+ * and known virtual/WSL/Hyper-V/VPN adapter names - another LAN device cannot
+ * reach those addresses.
+ */
+function getLanAddresses() {
+    var candidates = [];
+    var ifaces = os.networkInterfaces();
+    var virtualName = /(tailscale|vEthernet|WSL|Hyper-V|VirtualBox|VMware|Loopback|VPN|Tunnel|vpn|docker|bridge)/i;
+
+    Object.keys(ifaces).forEach(function(name) {
+        (ifaces[name] || []).forEach(function(info) {
+            if(!info || (info.family !== 'IPv4' && info.family !== 4)) { return; }
+            if(info.internal) { return; }
+            var addr = info.address;
+            if(addr.indexOf('169.254.') === 0) { return; }              // link-local
+            var o = addr.split('.').map(Number);
+            if(o[0] === 100 && o[1] >= 64 && o[1] <= 127) { return; }   // Tailscale/CGNAT
+
+            // Prefer real NICs: real-looking names (Wi-Fi, WLAN, Ethernet, eth, wlan, en) first.
+            var looksReal = /(wi-?fi|wlan|wireless|ethernet|^eth|en\d|local area)/i.test(name) && !virtualName.test(name);
+            candidates.push({ address: addr, real: looksReal ? 1 : 0 });
+        });
+    });
+
+    candidates.sort(function(a, b) { return b.real - a.real; });
+    return candidates.map(function(c) { return c.address; });
+}
+
 
 
 function main(config) {
@@ -35,6 +69,20 @@ function main(config) {
     };
     
     log.info("Starting BrowserQuest game server...");
+
+    // Advertise LAN play URLs so other devices on the same network can join.
+    // The client derives its WebSocket host from the page it was served from, so
+    // opening these URLs just works (no per-client config edit required).
+    setTimeout(function() {
+        var addrs = getLanAddresses();
+        log.info("Play locally:  http://localhost:" + config.port + "/");
+        if(addrs.length) {
+            addrs.forEach(function(a) {
+                log.info("Play on LAN:   http://" + a + ":" + config.port + "/");
+            });
+            log.info("(Allow Node.js through the firewall / open TCP " + config.port + " for LAN play.)");
+        }
+    }, 250);
     
     server.onConnect(function(connection) {
         var world, // the one in which the player will be spawned

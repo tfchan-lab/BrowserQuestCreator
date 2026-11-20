@@ -92,10 +92,10 @@ define(['jquery', 'storage', '../../shared/js/equipment'], function($, Storage, 
                 //>>includeStart("devHost", pragmas.devHost);
                 if(config.local) {
                     log.debug("Starting game with local dev config.");
-                    this.game.setServerOptions(config.local.host, config.local.port, username);
+                    this.game.setServerOptions(config.resolveHost(config.local), config.local.port, username);
                 } else {
                     log.debug("Starting game with default dev config.");
-                    this.game.setServerOptions(config.dev.host, config.dev.port, username);
+                    this.game.setServerOptions(config.resolveHost(config.dev), config.dev.port, username);
                 }
                 optionsSet = true;
                 //>>includeEnd("devHost");
@@ -103,7 +103,7 @@ define(['jquery', 'storage', '../../shared/js/equipment'], function($, Storage, 
                 //>>includeStart("prodHost", pragmas.prodHost);
                 if(!optionsSet) {
                     log.debug("Starting game with build config.");
-                    this.game.setServerOptions(config.build.host, config.build.port, username);
+                    this.game.setServerOptions(config.resolveHost(config.build), config.build.port, username);
                 }
                 //>>includeEnd("prodHost");
 

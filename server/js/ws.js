@@ -190,8 +190,10 @@ WS.MultiVersionWebsocketServer = Server.extend({
             }
         });
         
-        this._httpServer.listen(port, function() {
-            log.info("Server is listening on port "+port);
+        // Bind explicitly to all IPv4 interfaces so devices on the LAN can reach
+        // the game (a bare listen(port) may bind IPv6-only on some systems).
+        this._httpServer.listen(port, '0.0.0.0', function() {
+            log.info("Server is listening on 0.0.0.0:"+port+" (LAN-accessible)");
         });
     },
     

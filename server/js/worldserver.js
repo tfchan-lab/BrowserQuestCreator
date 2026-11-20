@@ -68,8 +68,12 @@ module.exports = World = cls.Class.extend({
                 self.incrementPlayerCount();
             }
             
-            // Number of players in this world
+            // Number of players in this world. Send to the joining player AND
+            // broadcast to everyone else so the on-screen player count updates
+            // live for existing players (previously only the joiner got it, so
+            // others saw a stale count until they relogged).
             self.pushToPlayer(player, new Messages.Population(self.playerCount));
+            self.showPlayerCountToAll();
             self.pushRelevantEntityListTo(player);
     
             var move_callback = function(x, y) {
@@ -114,6 +118,10 @@ module.exports = World = cls.Class.extend({
                 log.info(player.name + " has left the game.");
                 self.removePlayer(player);
                 self.decrementPlayerCount();
+
+                // Broadcast the updated count so other players see the change
+                // immediately (not gated on metrics being enabled).
+                self.showPlayerCountToAll();
                 
                 if(self.removed_callback) {
                     self.removed_callback();
@@ -579,7 +587,12 @@ module.exports = World = cls.Class.extend({
         
         if(entity.type === 'mob') {
             // Let the mob's attacker (player) know how much damage was inflicted
+            // (the floating damage number is attacker-only).
             this.pushToPlayer(attacker, new Messages.Damage(entity, damage));
+            // Broadcast the mob's new HP to everyone nearby so all other players'
+            // clients show the correct (partially depleted) HP bar, not full HP.
+            // Without this only the attacker sees the real HP; others see full.
+            this.pushToAdjacentGroups(entity.group, new Messages.MobHealth(entity));
         }
 
         // If the entity is about to die
@@ -949,5 +962,14 @@ module.exports = World = cls.Class.extend({
     
     updatePopulation: function(totalPlayers) {
         this.pushBroadcast(new Messages.Population(this.playerCount, totalPlayers ? totalPlayers : this.playerCount));
+    },
+
+    /**
+     * Broadcasts this world's current player count to all connected players.
+     * Used on join/leave so every client's counter updates live, without
+     * depending on the (optional) metrics service.
+     */
+    showPlayerCountToAll: function() {
+        this.pushBroadcast(new Messages.Population(this.playerCount));
     }
 });

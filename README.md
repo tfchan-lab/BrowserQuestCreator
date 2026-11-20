@@ -52,6 +52,39 @@ Optional configuration:
   (development) or `client/config/config_build.json` (production build).
 
 
+Playing on a LAN (multiplayer test)
+-----------------------------------
+
+The server already binds all network interfaces, so other devices on the same
+Wi-Fi/LAN can play. The client derives its WebSocket host from the page it was
+loaded from, so no per-client configuration is needed.
+
+1) Start the server with `npm start`. On boot it prints the reachable URLs, e.g.:
+
+        Play locally:  http://localhost:8000/
+        Play on LAN:   http://192.168.1.50:8000/
+
+2) On each other device on the same network, open the **Play on LAN** URL in a
+   browser (replace with the printed address). If none are printed, find your
+   IPv4 address (`ipconfig` on Windows, `ifconfig`/`ip addr` on macOS/Linux) and
+   use `http://<that-ip>:8000/`.
+
+3) Allow the connection through the firewall the first time the OS prompts
+   (Node.js on **Private** networks on Windows), or add an inbound rule for
+   **TCP 8000**. Without this, LAN devices cannot connect even though the
+   localhost URL works.
+
+Notes:
+
+- An explicit, non-`localhost` host in `client/config/config_local.json` (or
+  `config_build.json`) takes precedence over the page-derived host. Leave it as
+  `localhost` to use automatic LAN detection.
+- Hiding a browser tab/window disconnects that player from the world (the client
+  closes its socket and the server removes the player), which keeps LAN multiplayer
+  lobbies accurate while still allowing quick rejoins.
+
+
+
 Features
 --------
 

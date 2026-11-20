@@ -166,15 +166,45 @@ define(['jquery', 'app'], function($, App) {
         
             document.addEventListener("touchstart", function() {},false);
 
-            // Disconnect the player when the browser window/tab is hidden. A hidden
-            // window throttles the client's render/tick loop, which would otherwise
-            // let the player sit in the world (unresponsive) while other clients keep
-            // playing. Closing the socket makes the server remove the player cleanly.
+            // Disconnect the player when the browser window/tab is hidden for a
+            // sustained period. A hidden window throttles the client's render/tick
+            // loop, which would otherwise let the player sit in the world
+            // (unresponsive) while others keep playing. Closing the socket makes the
+            // server remove the player cleanly.
+            //
+            // IMPORTANT: use a grace period. Transient `hidden` events (opening
+            // devtools, switching apps, OS notifications, alt-tab) must NOT tear down
+            // the session - doing so desyncs the client (local player vanishes while
+            // the server still holds the avatar). We only disconnect if the page
+            // stays hidden continuously, and cancel if it becomes visible again.
+            var HIDDEN_DISCONNECT_MS = 2000;
+            var hiddenDisconnectTimer = null;
+
+            var cancelHiddenDisconnect = function() {
+                if(hiddenDisconnectTimer !== null) {
+                    clearTimeout(hiddenDisconnectTimer);
+                    hiddenDisconnectTimer = null;
+                }
+            };
+
             document.addEventListener("visibilitychange", function() {
-                if(document.hidden && game && game.started && game.client
-                   && game.client.connection
-                   && game.client.connection.readyState === 1) { // WebSocket.OPEN
-                    game.client.close();
+                if(document.hidden) {
+                    // Schedule a disconnect; cancel if we come back quickly.
+                    if(game && game.started && game.client && game.client.connection
+                       && game.client.connection.readyState === 1) { // WebSocket.OPEN
+                        cancelHiddenDisconnect();
+                        hiddenDisconnectTimer = setTimeout(function() {
+                            hiddenDisconnectTimer = null;
+                            if(document.hidden && game && game.client
+                               && game.client.connection
+                               && game.client.connection.readyState === 1) {
+                                game.client.close();
+                            }
+                        }, HIDDEN_DISCONNECT_MS);
+                    }
+                } else {
+                    // Visible again: keep the session.
+                    cancelHiddenDisconnect();
                 }
             });
             

@@ -183,13 +183,15 @@ module.exports = Player = Character.extend({
                     }
 
                     // Range guard (lenient): reported player position vs mob.
-                    // Skip it when the mob is already targeting this player: an
-                    // aggressive mob can aggro (and be repositioned server-side)
-                    // before the player attacks, so its server position is
-                    // unreliable, and an engaged mob is by definition chasing the
-                    // player. The attack-interval guard still applies either way.
+                    // Skip it whenever the mob is engaged with a player (has ANY
+                    // target), not only when it targets THIS player. Mobs are
+                    // client-simulated and get repositioned/re-targeted server-side
+                    // while engaged, so the server's mob position is unreliable. A
+                    // second player attacking a mob that is chasing someone else must
+                    // still be able to land hits from their own (adjacent) view; the
+                    // attack-interval guard always applies regardless.
                     var px = message[2], py = message[3];
-                    if(mob.target !== self.id) {
+                    if(!mob.hasTarget()) {
                         if(typeof px === 'number' && typeof py === 'number') {
                             var dist = euclidean(px, py, mob.x, mob.y);
                             if(dist > (self.attackRange || 1) + COMBAT_RANGE_TOLERANCE) {

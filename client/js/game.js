@@ -925,7 +925,14 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                     if(self.player.isMovingToLoot()) {
                         self.player.isLootMoving = false;
                     }
-                    else if(!self.player.isAttacking()) {
+                    else {
+                        // Always notify the server of the movement destination,
+                        // including while attacking. Otherwise the server's player
+                        // position goes stale during an attack-approach and the
+                        // server-side range guard rejects the player's HITs. This
+                        // also lets a second player hit a mob that is chasing
+                        // someone else: their approach keeps their server position
+                        // accurate, so the range check passes.
                         self.client.sendMove(x, y);
                     }
                 
@@ -1591,15 +1598,21 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                         diff,
                         isHurt;
                 
-                    if(player && !player.isDead && !player.invincible) {
-                        isHurt = points <= player.hitPoints;
+                    // Always apply the authoritative HP value (damage is already
+                    // blocked server-side while invincible). Previously updates were
+                    // skipped entirely while `player.invincible`, which dropped
+                    // healing (potions, ground pickups, passive regen) and only
+                    // "caught up" on the next damage tick. Only the hurt VISUAL is
+                    // suppressed while invincible.
+                    if(player && !player.isDead) {
+                        isHurt = points < player.hitPoints;
                         diff = points - player.hitPoints;
                         player.hitPoints = points;
 
                         if(player.hitPoints <= 0) {
                             player.die();
                         }
-                        if(isHurt) {
+                        if(isHurt && !player.invincible) {
                             player.hurt();
                             self.infoManager.addDamageInfo(diff, player.x, player.y - 15, "received");
                             self.audioManager.playSound("hurt");
@@ -1608,7 +1621,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                             if(self.playerhurt_callback) {
                                 self.playerhurt_callback();
                             }
-                        } else if(!isRegen){
+                        } else if(diff > 0 && !isRegen){
                             self.infoManager.addDamageInfo("+"+diff, player.x, player.y - 15, "healed");
                         }
                         self.updateBars();
@@ -1715,9 +1728,13 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                 });
                 
                 self.client.onDisconnected(function(message) {
-                    if(self.player) {
-                        self.player.die();
-                    }
+                    // Do NOT run the death sequence here. A dropped/closed socket
+                    // is not a game death: running player.die() animates and removes
+                    // the LOCAL player while the server may still hold the avatar for
+                    // a moment, leaving this client "invisible and unable to move"
+                    // while others still see the character. Just surface the
+                    // disconnect message (the app shows a reconnect prompt).
+                    self.stopped = true;
                     if(self.disconnect_callback) {
                         self.disconnect_callback(message);
                     }
